@@ -1,0 +1,218 @@
+{
+  "Comment": "HCP Terraform - run task handler",
+  "StartAt": "runtask_request",
+  "States": {
+    "runtask_request": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${resource_runtask_request}:$LATEST",
+        "Payload": {
+          "job_name.$": "$$.Execution.Name",
+          "payload.$": "$",
+          "action": "request"
+        }
+      },
+      "InputPath" : "$",
+      "ResultPath": "$.result.request",
+      "OutputPath": "$",
+      "ResultSelector": {
+        "status.$": "$.Payload",
+        "raw.$": "$"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "verification",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "fail"
+        }
+      ]
+    },
+
+    "verification" : {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.result.request.status",
+          "StringEquals": "verified",
+          "Next": "verified"
+        },
+        {
+          "Variable": "$.result.request.status",
+          "StringEquals": "unverified",
+          "Next": "unverified"
+        }
+      ],
+      "Default": "fail"
+    },
+
+    "verified": {
+      "Type": "Pass",
+      "Next": "select_stage"
+    },
+
+    "unverified": {
+      "Type": "Pass",
+      "Next": "runtask_callback"
+    },
+
+    "select_stage": {
+      "Type" : "Choice",
+      "Choices": [
+        {
+          "Variable": "$.detail.stage",
+          "StringEquals": "post_plan",
+          "Next": "post_plan"
+        },
+        {
+          "Variable": "$.detail.stage",
+          "StringEquals": "pre_plan",
+          "Next": "pre_plan"
+        },
+        {
+          "Variable": "$.detail.stage",
+          "StringEquals": "pre_apply",
+          "Next": "pre_apply"
+        }
+      ],
+      "Default": "post_plan"
+    },
+
+    "post_plan": {
+      "Type": "Pass",
+      "ResultPath": "$.result.stage",
+      "Result": {
+        "status": "implemented"
+      },
+      "Next": "runtask_fulfillment"
+    },
+
+    "pre_plan": {
+      "Type": "Pass",
+      "ResultPath": "$.result.stage",
+      "Result": {
+        "status": "not implemented"
+      },
+      "Next": "not_implemented"
+    },
+
+    "pre_apply": {
+      "Type": "Pass",
+      "ResultPath": "$.result.stage",
+      "Result": {
+        "status": "not implemented"
+      },
+      "Next": "not_implemented"
+    },
+
+    "not_implemented": {
+      "Type": "Pass",
+      "Next": "runtask_callback"
+    },
+
+    "runtask_fulfillment": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${resource_runtask_fulfillment}:$LATEST",
+        "Payload": {
+          "job_name.$": "$$.Execution.Name",
+          "payload.$": "$",
+          "action": "fulfillment"
+        }
+      },
+      "InputPath" : "$",
+      "ResultPath": "$.result.fulfillment",
+      "OutputPath": "$",
+      "ResultSelector": {
+        "status.$": "$.Payload.status",
+        "message.$": "$.Payload.message",
+        "url.$": "$.Payload.url",
+        "results.$": "$.Payload.results"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "runtask_callback",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "fail"
+        }
+      ]
+    },
+
+    "runtask_callback": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${resource_runtask_callback}:$LATEST",
+        "Payload": {
+          "job_name.$": "$$.Execution.Name",
+          "payload.$": "$",
+          "action": "callback"
+        }
+      },
+      "InputPath" : "$",
+      "ResultPath": "$.result.callback",
+      "OutputPath": "$",
+      "ResultSelector": {
+        "status.$": "$.Payload"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "success",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "fail"
+        }
+      ]
+    },
+
+    "fail": {
+      "Type": "Fail"
+    },
+
+    "success": {
+      "Type": "Succeed"
+    }
+  }
+}
