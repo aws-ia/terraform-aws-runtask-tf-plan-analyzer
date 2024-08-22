@@ -104,8 +104,9 @@ resource "aws_iam_role_policy" "runtask_rule" {
 
 ################# IAM for the Cloudwatch log groups ##################
 data "aws_iam_policy_document" "runtask_key" {
-  #checkov:skip=CKV_AWS_109:Skip
-  #checkov:skip=CKV_AWS_111:Skip
+  #checkov:skip=CKV_AWS_109:KMS management permission by IAM user
+  #checkov:skip=CKV_AWS_111:wildcard permission required for kms key
+  #checkov:skip=CKV_AWS_356:wildcard permission required for kms key
   statement {
     sid    = "Enable IAM User Permissions"
     effect = "Allow"
@@ -205,8 +206,9 @@ data "aws_iam_policy_document" "runtask_key" {
 
 ################# IAM for WAF (Optional) ##################
 data "aws_iam_policy_document" "runtask_waf" {
-  #checkov:skip=CKV_AWS_109:Skip
-  #checkov:skip=CKV_AWS_111:Skip
+  #checkov:skip=CKV_AWS_109:KMS management permission by IAM user
+  #checkov:skip=CKV_AWS_111:wildcard permission required for kms key
+  #checkov:skip=CKV_AWS_356:wildcard permission required for kms key
   count    = local.waf_deployment
   provider = aws.cloudfront_waf
   statement {
