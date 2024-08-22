@@ -1,0 +1,29 @@
+{
+  "payload_version": 1,
+  "access_token": "token",
+  "stage": "post_plan",
+  "is_speculative": false,
+  "task_result_id": "taskrs-xxxxxxxxxxxxxxxx",
+  "task_result_enforcement_level": "test",
+  "task_result_callback_url": "https://app.terraform.io/api/v2/task-results/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/callback",
+  "run_app_url": "https://app.terraform.io/app/test-org/test-workspace/runs/run-xxxxxxxxxxxxxxxx",
+  "run_id": "run-xxxxxxxxxxxxxxxx",
+  "run_message": "Test run message",
+  "run_created_at": "2021-01-01T00:00:00.000Z",
+  "run_created_by": "test-user",
+  "workspace_id": "ws-xxxxxxxxxxxxxxxx",
+  "workspace_name": "test-workspace",
+  "workspace_app_url": "https://app.terraform.io/app/test-org/test-workspace",
+  "organization_name": "test-org",
+  "vcs_repo_url": null,
+  "vcs_branch": null,
+  "vcs_pull_request_url": null,
+  "vcs_commit_url": null,
+  "configuration_version_id": "cv-xxxxxxxxxxxxxxxx",
+  "configuration_version_download_url": "https://app.terraform.io/api/v2/configuration-versions/cv-xxxxxxxxxxxxxxxx/download",
+  "workspace_working_directory": "",
+  "plan_json_api_url": "https://app.terraform.io/api/v2/runs/plan-xxxxxxxxxxxxxxxx/plan/json-output",
+  "capabilities": {
+    "outcomes": true
+  }
+}
