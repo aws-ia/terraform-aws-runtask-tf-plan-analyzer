@@ -13,6 +13,7 @@ resource "aws_lambda_function" "runtask_eventbridge" {
   function_name    = "${var.name_prefix}-runtask-eventbridge"
   description      = "HCP Terraform run task - EventBridge handler"
   role             = aws_iam_role.runtask_eventbridge.arn
+  architectures    = local.lambda_architecture
   source_code_hash = data.archive_file.runtask_eventbridge.output_base64sha256
   filename         = data.archive_file.runtask_eventbridge.output_path
   handler          = "handler.lambda_handler"
@@ -49,18 +50,12 @@ resource "aws_cloudwatch_log_group" "runtask_eventbridge" {
   kms_key_id        = aws_kms_key.runtask_key.arn
 }
 
-data "archive_file" "runtask_eventbridge" {
-  type        = "zip"
-  source_dir  = "${path.module}/lambda/runtask_eventbridge/site-packages/"
-  output_path = "${path.module}/lambda/runtask_eventbridge.zip"
-  depends_on  = [terraform_data.bootstrap]
-}
-
 ################# Run task request ##################
 resource "aws_lambda_function" "runtask_request" {
   function_name                  = "${var.name_prefix}-runtask-request"
   description                    = "HCP Terraform run task - Request handler"
   role                           = aws_iam_role.runtask_request.arn
+  architectures                  = local.lambda_architecture
   source_code_hash               = data.archive_file.runtask_request.output_base64sha256
   filename                       = data.archive_file.runtask_request.output_path
   handler                        = "handler.lambda_handler"
@@ -89,18 +84,13 @@ resource "aws_cloudwatch_log_group" "runtask_request" {
   kms_key_id        = aws_kms_key.runtask_key.arn
 }
 
-data "archive_file" "runtask_request" {
-  type        = "zip"
-  source_dir  = "${path.module}/lambda/runtask_request/site-packages/"
-  output_path = "${path.module}/lambda/runtask_request.zip"
-  depends_on  = [terraform_data.bootstrap]
-}
 
 ################# Run task callback ##################
 resource "aws_lambda_function" "runtask_callback" {
   function_name                  = "${var.name_prefix}-runtask-callback"
   description                    = "HCP Terraform run task - Callback handler"
   role                           = aws_iam_role.runtask_callback.arn
+  architectures                  = local.lambda_architecture
   source_code_hash               = data.archive_file.runtask_callback.output_base64sha256
   filename                       = data.archive_file.runtask_callback.output_path
   handler                        = "handler.lambda_handler"
@@ -121,21 +111,16 @@ resource "aws_cloudwatch_log_group" "runtask_callback" {
   kms_key_id        = aws_kms_key.runtask_key.arn
 }
 
-data "archive_file" "runtask_callback" {
-  type        = "zip"
-  source_dir  = "${path.module}/lambda/runtask_callback/site-packages"
-  output_path = "${path.module}/lambda/runtask_callback.zip"
-  depends_on  = [terraform_data.bootstrap]
-}
-
 ################# Run task Fulfillment ##################
 resource "aws_lambda_function" "runtask_fulfillment" {
   function_name                  = "${var.name_prefix}-runtask-fulfillment"
-  architectures                  = ["arm64"]
   description                    = "HCP Terraform run task - Fulfillment handler"
   role                           = aws_iam_role.runtask_fulfillment.arn
-  image_uri                      = var.run_task_fulfillment_image
-  package_type                   = "Image"
+  architectures                  = local.lambda_architecture
+  source_code_hash               = data.archive_file.runtask_fulfillment.output_base64sha256
+  filename                       = data.archive_file.runtask_fulfillment.output_path
+  handler                        = "handler.lambda_handler"
+  runtime                        = local.lambda_python_runtime
   timeout                        = local.lambda_default_timeout
   reserved_concurrent_executions = local.lambda_reserved_concurrency
   tracing_config {
@@ -144,7 +129,6 @@ resource "aws_lambda_function" "runtask_fulfillment" {
   environment {
     variables = {
       CW_LOG_GROUP_NAME = "/aws/lambda/${var.name_prefix}-runtask-fulfillment"
-      DEV_MODE          = "False"
     }
   }
   #checkov:skip=CKV_AWS_116:not using DLQ
@@ -177,7 +161,6 @@ resource "aws_cloudwatch_event_rule" "runtask_rule" {
     var_event_source   = var.event_source
     var_runtask_stages = jsonencode(var.runtask_stages)
   })
-
 }
 
 resource "aws_cloudwatch_event_target" "runtask_target" {
