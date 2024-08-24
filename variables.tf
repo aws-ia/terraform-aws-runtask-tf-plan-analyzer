@@ -88,7 +88,27 @@ variable "lambda_reserved_concurrency" {
 variable "lambda_default_timeout" {
   description = "Lambda default timeout in seconds"
   type        = number
-  default     = 30
+  default     = 120
+}
+
+variable "lambda_architecture" {
+  description = "Lambda architecture (arm64 or x86_64)"
+  type = string
+  default = "x86_64"
+  validation {
+    condition     = contains(["arm64", "x86_64"], var.lambda_architecture)
+    error_message = "Valid values for var: lambda_architecture are arm64 or x86_64"
+  }  
+}
+
+variable "lambda_python_runtime" {
+  description = "Lambda Python runtime"
+  type = string
+  default = "python3.11"
+  validation {
+    condition     = contains(["python3.11", "python3.10", "python3.9"], var.lambda_python_runtime)
+    error_message = "Valid values for var: lambda_python_runtime are python3.11, python3.10, python3.9"
+  }
 }
 
 variable "deploy_waf" {

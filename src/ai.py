@@ -22,11 +22,10 @@ bedrock_client = session.client(
     service_name="bedrock-runtime", region_name=aws_region, config=config
 )
 
-
 # Input is the terraform plan JSON
 def eval(tf_plan_json):
 
-    logger.info("\n##### Evaluating plan using Amazon Bedrock Claude 3 #####")
+    logger.info("##### Evaluating plan using Amazon Bedrock #####")
 
     # Get modifications to be done
     prompt = """
@@ -92,23 +91,23 @@ def eval(tf_plan_json):
         <output>
         <thinking>
         </thinking>
-            <result>
-                ## Current AMI ID
-                    * AMI name:
-                    * OS Architecture:
-                    * OS Name:
-                    * kernel:
-                    * docker version:
-                    * ECS agent:
+        <result>
+            ## Current AMI ID
+                * AMI name:
+                * OS Architecture:
+                * OS Name:
+                * kernel:
+                * docker version:
+                * ECS agent:
 
-                ## New AMI ID
-                    * AMI name:
-                    * kernel:
-                    * OS Architecture:
-                    * OS Name:
-                    * docker version:
-                    * ECS agent:
-            </result>
+            ## New AMI ID
+                * AMI name:
+                * kernel:
+                * OS Architecture:
+                * OS Name:
+                * docker version:
+                * ECS agent:
+        </result>
         <output>
         Now, given the following analysis, compare any old with new AMIs:
         """
@@ -166,10 +165,10 @@ def eval(tf_plan_json):
         messages.append(response)
 
     result = response["content"][0]["text"]
-    logger.info("\n##### Report #####")
+    logger.info("##### Report #####")
 
-    logger.info(analysis_response_text)
-    logger.info(result)
+    logger.info("Analysis Response: {}".format(analysis_response_text))
+    logger.info("Result: {}".format(result))
 
     prompt = f"""
         Can you provide a short summary with maximum of 150 characters of the infrastructure changes?
@@ -189,11 +188,10 @@ def eval(tf_plan_json):
     )
     description = response["content"][0]["text"]
 
-    logger.info("\n##### Description #####")
+    logger.info("##### Description #####")
     logger.info(description)
 
-    result = convert_to_markdown(result)
     results = []
-    results.append(generate_runtask_result(outcome_id="AWS-TF-PLAN-ANALYZER", description=description[:150], result=description[:700]))
-    results.append(generate_runtask_result(outcome_id="AWS-ECS-AMI-ANALYZER", description=result[:150], result=result[:700]))
+    results.append(generate_runtask_result(outcome_id="General-Plan-Summary", description="Summary of Terraform plan", result=description[:700]))
+    results.append(generate_runtask_result(outcome_id="AMI-Summary", description="Summary of AMI changes", result=result[:700]))
     return description, results

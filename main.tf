@@ -1,35 +1,3 @@
-locals {
-  lambda_managed_policies     = [data.aws_iam_policy.aws_lambda_basic_execution_role.arn]
-  lambda_reserved_concurrency = var.lambda_reserved_concurrency
-  lambda_default_timeout      = var.lambda_default_timeout
-  lambda_python_runtime       = "python3.9"
-
-  cloudwatch_log_group_name = var.cloudwatch_log_group_name
-
-  waf_deployment = var.deploy_waf ? 1 : 0
-  waf_rate_limit = var.waf_rate_limit
-
-  cloudfront_sig_name = "x-cf-sig"
-  cloudfront_custom_header = {
-    name  = local.cloudfront_sig_name
-    value = var.deploy_waf ? aws_secretsmanager_secret_version.runtask_cloudfront[0].secret_string : null
-  }
-}
-
-data "aws_region" "current_region" {}
-
-data "aws_region" "cloudfront_region" {
-  provider = aws.cloudfront_waf
-}
-
-data "aws_caller_identity" "current_account" {}
-
-data "aws_partition" "current_partition" {}
-
-data "aws_iam_policy" "aws_lambda_basic_execution_role" {
-  name = "AWSLambdaBasicExecutionRole"
-}
-
 #####################################################################################
 # LAMBDA
 #####################################################################################
@@ -71,7 +39,7 @@ resource "aws_lambda_function" "runtask_eventbridge" {
 
 resource "aws_lambda_function_url" "runtask_eventbridge" {
   function_name      = aws_lambda_function.runtask_eventbridge.function_name
-  authorization_type = "NONE"
+  authorization_type = "AWS_IAM"
   #checkov:skip=CKV_AWS_258:auth set to none, validation hmac inside the lambda code
 }
 
@@ -163,6 +131,7 @@ data "archive_file" "runtask_callback" {
 ################# Run task Fulfillment ##################
 resource "aws_lambda_function" "runtask_fulfillment" {
   function_name                  = "${var.name_prefix}-runtask-fulfillment"
+  architectures                  = ["arm64"]
   description                    = "HCP Terraform run task - Fulfillment handler"
   role                           = aws_iam_role.runtask_fulfillment.arn
   image_uri                      = var.run_task_fulfillment_image
@@ -195,121 +164,6 @@ resource "aws_cloudwatch_log_group" "runtask_fulfillment_output" {
   retention_in_days = var.cloudwatch_log_group_retention
   kms_key_id        = aws_kms_key.runtask_key.arn
 }
-
-# data "archive_file" "streamlit_assets" {
-#   type = "zip"
-#   source_dir  = "${path.module}/../app/"
-#   output_path = "${var.name_prefix}-assets.zip"
-# }
-# # Create S3 bucket to store Streamlit Assets
-# resource "aws_s3_bucket" "streamlit_s3_bucket" {
-#   bucket        = "${var.app_name}-assets-${random_string.streamlit_s3_bucket.result}"
-#   force_destroy = true
-#   tags = {
-#     Name = "${var.app_name}-assets-${random_string.streamlit_s3_bucket.result}"
-#   }
-# }
-
-# # Create an ECR repository
-# resource "aws_ecr_repository" "src_ecr_repo" {
-#   name                 = "${var.name_prefix}-repo"
-#   image_tag_mutability = var.ecr_image_tag_mutability
-#   image_scanning_configuration {
-#     scan_on_push = var.enable_ecr_scan
-#   }
-#   encryption_configuration {
-#     encryption_type = var.ecr_encryption_type
-#     kms_key         = var.ecr_repo_kms_key
-#   }
-#   # allow for repo to be deleted even if it contains images
-#   force_delete = var.ecr_force_delete
-#   tags = {
-#     Name = "${var.name_prefix}-repo"
-#   }
-# }
-
-# # Build the container and push to ECR
-# resource "aws_codebuild_project" "src_codebuild_project" {
-#   name          = "${var.name_prefix}-image-builder"
-#   description   = <<EOF
-#   CodeBuild project to build Docker image & pushe to ECR with
-#   files uploaded at ${var.name_prefix}-assets-${random_string.src_s3_bucket.result} S3 bucket.
-#   EOF
-#   build_timeout = "10"
-#   # TODO - allow for users to supply existing IAM role to be used with CodeBuild
-#   service_role = aws_iam_role.streamlit_codebuild_service_role.arn
-#   # service_role  = var.codebuild_service_role_arn != null ? var.codebuild_service_role_arn : aws_iam_role.codebuild_service_role.arn
-
-#   environment {
-#     compute_type = var.codebuild_compute_type
-#     image        = var.codebuild_image
-#     type         = var.codebuild_image_type
-#     environment_variable {
-#       name  = "APP_NAME"
-#       value = var.app_name
-#     }
-#     environment_variable {
-#       name  = "IMAGE_TAG"
-#       value = var.app_version
-#     }
-#     environment_variable {
-#       name  = "IMAGE_REPO_NAME"
-#       value = "${var.app_name}-repo"
-#     }
-#     environment_variable {
-#       name  = "IMAGE_REPO_URL"
-#       value = aws_ecr_repository.src_ecr_repo.repository_url
-#     }
-#     environment_variable {
-#       name  = "STREAMLIT_S3_BUCKET"
-#       value = aws_s3_bucket.streamlit_s3_bucket.id
-#     }
-#     environment_variable {
-#       name  = "STREAMLIT_S3_OBJECT"
-#       value = "${var.name_prefix}-assets.zip"
-#     }
-#     environment_variable {
-#       name  = "AWS_REGION"
-#       value = data.aws_region.current.name
-#     }
-#   }
-#   source {
-#     type     = "S3"
-#     location = "${aws_s3_bucket.streamlit_s3_bucket.id}/${var.name_prefix}-assets.zip"
-#     buildspec = var.path_to_build_spec != null ? file(var.path_to_build_spec) : <<EOF
-#       version: 0.2
-#       phases:
-#         pre_build:
-#           commands:
-#             # Fetch the S3 object version id of the latest version of the app and store as environment variable
-#             - echo Fetching the S3 object version id of the latest version of $APP_NAME...
-#             - export LATEST_VERSION_ID=${data.aws_s3_object.streamlit_assets.version_id}
-#             - echo $LATEST_VERSION_ID
-#             # Log into Amazon ECR
-#             - echo Logging in to Amazon ECR...
-#             - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $IMAGE_REPO_URL
-#         build:
-#           commands:
-#             # Build docker image using latest, app version and s3 object version id as tags
-#             - echo Build started on `date`
-#             - echo Building the Docker image...
-#             - docker build -t $IMAGE_REPO_URL:latest -t $IMAGE_REPO_URL:$IMAGE_TAG -t $IMAGE_REPO_URL:$LATEST_VERSION_ID .
-#             - echo Build completed on `date`
-#         post_build:
-#           commands:
-#             # Push image with all tags to Amazon ECR
-#             - echo Pushing the Docker image...
-#             - docker push $IMAGE_REPO_URL --all-tags
-#             - echo New image successfully pushed to ECR!
-#     EOF
-#   }
-#   artifacts {
-#     type = "NO_ARTIFACTS"
-#   }
-#   tags = {
-#     "Name" = "${var.name_prefix}-image-builder"
-#   }
-# }
 
 #####################################################################################
 # EVENT BRIDGE

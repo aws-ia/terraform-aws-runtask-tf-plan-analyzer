@@ -19,11 +19,11 @@ module "hcp_tf_run_task" {
   deploy_waf                 = true
 }
 
-resource "tfe_organization_run_task" "aws_iam_analyzer" {
+resource "tfe_organization_run_task" "bedrock_plan_analyzer" {
   enabled      = true
   organization = data.tfe_organization.hcp_tf_org.name
   url          = module.hcp_tf_run_task.runtask_url
   hmac_key     = module.hcp_tf_run_task.runtask_hmac
-  name         = "tf-plan-analyzer-run-task"
-  description  = "Custom AWS run task integration"
+  name         = "Bedrock-TF-Plan-Analyzer"
+  description  = "Analyze TF plan using Amazon Bedrock"
 }

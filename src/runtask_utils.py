@@ -82,10 +82,10 @@ def generate_runtask_result(outcome_id, description, result):
                 "description": description,
                 "body": f"{result}",
                 "tags": {
-                    "status": [{"label": "Antropic", "level": "info"}],
+                    "status": [{"label": "Passed", "level": "info"}],
                     "severity": [
                         {
-                            "label": "ECS",
+                            "label": "Info",
                             "level": "info",
                         }
                     ],

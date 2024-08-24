@@ -50,13 +50,18 @@ resource "aws_iam_role_policy_attachment" "runtask_callback" {
 resource "aws_iam_role" "runtask_fulfillment" {
   name                = "${var.name_prefix}-runtask-fulfillment"
   assume_role_policy  = templatefile("${path.module}/templates/trust-policies/lambda.tpl", { none = "none" })
-  managed_policy_arns = var.run_task_iam_roles != null ? var.run_task_iam_roles : ["arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"]
 }
 
-resource "aws_iam_role_policy_attachment" "runtask_fulfillment" {
+resource "aws_iam_role_policy_attachment" "runtask_fulfillment_basic_attachment" {
   count      = length(local.lambda_managed_policies)
   role       = aws_iam_role.runtask_fulfillment.name
   policy_arn = local.lambda_managed_policies[count.index]
+}
+
+resource "aws_iam_role_policy_attachment" "runtask_fulfillment_additional_attachment" {
+  count      = length(var.run_task_iam_roles)
+  role       = aws_iam_role.runtask_fulfillment.name
+  policy_arn = var.run_task_iam_roles[count.index]
 }
 
 resource "aws_iam_role_policy" "runtask_fulfillment" {
