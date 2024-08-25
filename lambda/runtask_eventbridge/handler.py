@@ -49,22 +49,19 @@ logger.info("Log level set to %s" % logger.getEffectiveLevel())
 event_bus_name = os.environ.get("EVENT_BUS_NAME", "default")
 event_bridge_client = boto3.client("events")
 
-
+## Add user-agent to event-bridge event
 def _add_header(request, **kwargs):
     userAgentHeader = request.headers["User-Agent"] + " fURLWebhook/1.0 (HashiCorp)"
     del request.headers["User-Agent"]
     request.headers["User-Agent"] = userAgentHeader
 
-
+## Add user-agent to event-bridge event
 event_system = event_bridge_client.meta.events
 event_system.register_first("before-sign.events.PutEvents", _add_header)
 
-
 class PutEventError(Exception):
     """Raised when Put Events Failed"""
-
     pass
-
 
 def lambda_handler(event, _context):
     """Terraform run task function"""

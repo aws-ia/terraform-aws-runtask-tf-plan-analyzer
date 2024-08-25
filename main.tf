@@ -111,6 +111,26 @@ resource "aws_cloudwatch_log_group" "runtask_callback" {
   kms_key_id        = aws_kms_key.runtask_key.arn
 }
 
+################# Run task Edge ##################
+resource "aws_lambda_function" "runtask_edge" {
+  function_name                  = "${var.name_prefix}-runtask-edge"
+  description                    = "HCP Terraform run task - Lambda@Edge handler"
+  role                           = aws_iam_role.runtask_edge.arn
+  architectures                  = local.lambda_architecture
+  source_code_hash               = data.archive_file.runtask_edge.output_base64sha256
+  filename                       = data.archive_file.runtask_edge.output_path
+  handler                        = "handler.lambda_handler"
+  runtime                        = local.lambda_python_runtime
+  timeout                        = 5 # Lambda@Edge max timout is 5
+  reserved_concurrent_executions = local.lambda_reserved_concurrency
+  publish                        = true # Lambda@Edge must be published
+
+  #checkov:skip=CKV_AWS_116:not using DLQ
+  #checkov:skip=CKV_AWS_117:VPC is not required
+  #checkov:skip=CKV_AWS_173:no sensitive data in env var
+  #checkov:skip=CKV_AWS_272:skip code-signing
+}
+
 ################# Run task Fulfillment ##################
 resource "aws_lambda_function" "runtask_fulfillment" {
   function_name                  = "${var.name_prefix}-runtask-fulfillment"
@@ -277,7 +297,7 @@ module "runtask_cloudfront" {
 
   count   = local.waf_deployment
   source  = "terraform-aws-modules/cloudfront/aws"
-  version = "3.2.1"
+  version = "3.4.0"
 
   comment             = "CloudFront for run task integration: ${var.name_prefix}"
   enabled             = true
@@ -285,6 +305,16 @@ module "runtask_cloudfront" {
   retain_on_delete    = false
   wait_for_deployment = true
   web_acl_id          = aws_wafv2_web_acl.runtask_waf[count.index].arn
+
+  create_origin_access_control = true
+  origin_access_control = {
+    lambda_oac = {
+      description      = "CloudFront OAC to Lambda"
+      origin_type      = "lambda"
+      signing_behavior = "always"
+      signing_protocol = "sigv4"
+    }
+  }
 
   origin = {
     runtask_eventbridge = {
@@ -295,7 +325,8 @@ module "runtask_cloudfront" {
         origin_protocol_policy = "https-only"
         origin_ssl_protocols   = ["TLSv1.2"]
       }
-      custom_header = var.deploy_waf ? [local.cloudfront_custom_header] : null
+      origin_access_control = "lambda_oac"
+      custom_header         = var.deploy_waf ? [local.cloudfront_custom_header] : null
     }
   }
 
@@ -314,6 +345,13 @@ module "runtask_cloudfront" {
 
     allowed_methods = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
     cached_methods  = ["GET", "HEAD", "OPTIONS"]
+
+    lambda_function_association = {
+      origin-request = {
+        lambda_arn   = aws_lambda_function.runtask_edge.qualified_arn
+        include_body = true
+      }
+    }
   }
 
   viewer_certificate = {

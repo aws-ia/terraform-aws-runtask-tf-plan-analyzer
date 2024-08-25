@@ -12,7 +12,6 @@ build:
 	$(info ************ Starting Build: $(PROJECT) ************)
 	mkdir -p site-packages
 	cp *.* ./site-packages
-	cp -r tools ./site-packages
 	mkdir -p build
 	python3 -m venv build/
 	. build/bin/activate; \

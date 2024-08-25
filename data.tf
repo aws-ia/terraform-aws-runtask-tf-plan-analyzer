@@ -48,3 +48,10 @@ data "archive_file" "runtask_fulfillment" {
   output_path = "${path.module}/lambda/runtask_fulfillment.zip"
   depends_on  = [terraform_data.bootstrap]
 }
+
+data "archive_file" "runtask_edge" {
+  type        = "zip"
+  source_dir  = "${path.module}/lambda/runtask_edge/site-packages"
+  output_path = "${path.module}/lambda/runtask_edge.zip"
+  depends_on  = [terraform_data.bootstrap]
+}

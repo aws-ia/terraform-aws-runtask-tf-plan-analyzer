@@ -1,9 +1,13 @@
 locals {
-  lambda_managed_policies     = [
+  lambda_managed_policies = [
     data.aws_iam_policy.lambda_basic_execution_managed_policy.arn,
+  ]
+
+  lambda_bedrock_managed_policies = [
     data.aws_iam_policy.bedrock_full_access_managed_policy.arn,
     data.aws_iam_policy.ec2_readonly_managed_policy.arn
   ]
+
   lambda_reserved_concurrency = var.lambda_reserved_concurrency
   lambda_default_timeout      = var.lambda_default_timeout
   lambda_python_runtime       = var.lambda_python_runtime

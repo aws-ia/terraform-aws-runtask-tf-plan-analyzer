@@ -1,3 +1,15 @@
+################# IAM for run task Lambda@Edge ##################
+resource "aws_iam_role" "runtask_edge" {
+  name               = "${var.name_prefix}-runtask-edge"
+  assume_role_policy = templatefile("${path.module}/templates/trust-policies/lambda_edge.tpl", { none = "none" })
+}
+
+resource "aws_iam_role_policy_attachment" "runtask_edge" {
+  count      = length(local.lambda_managed_policies)
+  role       = aws_iam_role.runtask_edge.name
+  policy_arn = local.lambda_managed_policies[count.index]
+}
+
 ################# IAM for run task EventBridge ##################
 resource "aws_iam_role" "runtask_eventbridge" {
   name               = "${var.name_prefix}-runtask-eventbridge"
@@ -48,14 +60,20 @@ resource "aws_iam_role_policy_attachment" "runtask_callback" {
 
 ################# IAM for run task fulfillment ##################
 resource "aws_iam_role" "runtask_fulfillment" {
-  name                = "${var.name_prefix}-runtask-fulfillment"
-  assume_role_policy  = templatefile("${path.module}/templates/trust-policies/lambda.tpl", { none = "none" })
+  name               = "${var.name_prefix}-runtask-fulfillment"
+  assume_role_policy = templatefile("${path.module}/templates/trust-policies/lambda.tpl", { none = "none" })
 }
 
 resource "aws_iam_role_policy_attachment" "runtask_fulfillment_basic_attachment" {
   count      = length(local.lambda_managed_policies)
   role       = aws_iam_role.runtask_fulfillment.name
   policy_arn = local.lambda_managed_policies[count.index]
+}
+
+resource "aws_iam_role_policy_attachment" "runtask_fulfillment_bedrock_attachment" {
+  count      = length(local.lambda_bedrock_managed_policies)
+  role       = aws_iam_role.runtask_fulfillment.name
+  policy_arn = local.lambda_bedrock_managed_policies[count.index]
 }
 
 resource "aws_iam_role_policy_attachment" "runtask_fulfillment_additional_attachment" {

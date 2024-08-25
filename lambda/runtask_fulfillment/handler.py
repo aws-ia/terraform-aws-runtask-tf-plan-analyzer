@@ -48,48 +48,6 @@ def process_run_task(type: str, data: str):
 
     return url, status, message, results
 
-
-# <-- PLEASE DO NOT USE THIS FUNCTION IN PRODUCTION -->
-# <-- This function is only for testing the callback in local dev environment -->
-def test_callback(callback_url, access_token, status, message, results, url):
-    # Format the payload for the callback
-    # Schema Documentation - https://www.terraform.io/cloud-docs/api-docs/run-tasks-integration#request-body-1
-    data = json.dumps(
-        {
-            "data": {
-                "type": "task-results",
-                "attributes": {
-                    "status": status,
-                    "message": message,
-                    "url": url,
-                },
-                "relationships": {
-                    "outcomes": {
-                        "data": results,
-                    }
-                },
-            }
-        },
-        separators=(",", ":"),
-        indent=4,
-    )
-
-    options = {
-        "method": "PATCH",
-        "headers": {
-            "Content-Type": "application/vnd.api+json",
-            "Authorization": "Bearer " + access_token,
-        },
-        "data": data,
-    }
-
-    logger.debug(data)
-    response = requests.patch(
-        callback_url, headers=options["headers"], data=options["data"]
-    ).json()
-    logger.debug(json.dumps(response, separators=(",", ":"), indent=4))
-
-
 # Main handler for the Lambda function
 def lambda_handler(event, context):
 
@@ -102,10 +60,6 @@ def lambda_handler(event, context):
         "message": "Successful!",
         "results": [],
     }
-
-    if dev_mode.lower() == "true":
-        ev = {"payload": {"detail": event}}
-        event = ev
 
     try:
 
@@ -173,17 +127,6 @@ def lambda_handler(event, context):
                 "message": message,
                 "results": results,
             }
-
-            # This is only used for testing the callback in local dev environment
-            if dev_mode.lower() == "true":
-                test_callback(
-                    callback_url=task_result_callback_url,
-                    access_token=access_token,
-                    status=status,
-                    message=message,
-                    results=results,
-                    url="https://external.service.dev/terraform-plan-checker/run-i3Df5to9ELvibKpQ",
-                )
             return runtask_response
 
         else:
@@ -194,15 +137,4 @@ def lambda_handler(event, context):
         runtask_response["message"] = (
             "HCP Terraform run task failed, please look into the service logs for more details."
         )
-
-        # This is only used for testing the callback in local dev environment
-        if dev_mode.lower() == "true":
-            test_callback(
-                callback_url=task_result_callback_url,
-                access_token=access_token,
-                status="failed",
-                message=runtask_response["message"],
-                results=[],
-            )
-            return None
         return runtask_response
