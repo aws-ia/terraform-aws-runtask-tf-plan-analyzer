@@ -17,7 +17,6 @@ def lambda_handler(event, context):
     headers = request["headers"]
     headerName = 'x-amz-content-sha256'
     
-    # if request['method'] in ['POST', 'PUT']:
     '''
     CloudFront Origin Access Control will not automatically calculate the payload hash.
     this Lambda@Edge will calculate the payload hash and append new header x-amz-content-sha256

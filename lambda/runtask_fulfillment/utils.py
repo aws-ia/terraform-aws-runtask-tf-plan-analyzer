@@ -51,8 +51,10 @@ def stream_messages(bedrock_client,
     inference_config = {"temperature": temperature}
     if stop_sequences is not None:
         inference_config['stopSequences'] = stop_sequences
+
     logger.info("Streaming messages with model %s", model_id)
     system_prompts = [{"text" : system_text}]
+
     if tool_config is None:
         response = bedrock_client.converse_stream(
             modelId=model_id,
@@ -69,16 +71,14 @@ def stream_messages(bedrock_client,
             inferenceConfig = inference_config
         )
 
-
     stop_reason = ""
-
     message = {}
     content = []
     message['content'] = content
     text = ''
     tool_use = {}
 
-    logger.info(response)
+    logger.debug(response)
 
     #stream the response into a message.
     for chunk in response['stream']:
@@ -97,7 +97,7 @@ def stream_messages(bedrock_client,
             elif 'text' in delta:
                 text += delta['text']
                 if logging.root.level <= logging.INFO:
-                    print(delta['text'], end='')
+                    logger.debug(delta['text'], end='')
         elif 'contentBlockStop' in chunk:
             if 'input' in tool_use:
                 tool_use['input'] = json.loads(tool_use['input'])
