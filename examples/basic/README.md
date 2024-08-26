@@ -48,7 +48,7 @@ This is a basic example setup on using the module.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_hcp_tf_run_task"></a> [hcp\_tf\_run\_task](#module\_hcp\_tf\_run\_task) | ../../ | n/a |
+| <a name="module_hcp_tf_run_task"></a> [hcp\_tf\_run\_task](#module\_hcp\_tf\_run\_task) | ../.. | n/a |
 
 ## Resources
 
