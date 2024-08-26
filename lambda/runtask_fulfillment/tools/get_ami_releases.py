@@ -14,7 +14,8 @@ class GetECSAmisReleases:
 
     def get_ecs_amis_releases_info(self, ami_ids):
         response = requests.get(
-            "https://api.github.com/repos/aws/amazon-ecs-ami/releases"
+            "https://api.github.com/repos/aws/amazon-ecs-ami/releases",
+            timeout=30
         )
         response_json = response.json()
         releases_info = []

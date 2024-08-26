@@ -21,7 +21,7 @@ def download_config(configuration_version_download_url, access_token):
         "Content-Type": "application/vnd.api+json",
         "Authorization": "Bearer " + access_token,
     }
-    response = requests.get(configuration_version_download_url, headers=headers)
+    response = requests.get(configuration_version_download_url, headers=headers, timeout=30)
 
     config_file = os.path.join(os.getcwd(), "pre_plan", "config.tar.gz")
     os.makedirs(os.path.dirname(config_file), exist_ok=True)
