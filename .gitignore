@@ -43,3 +43,4 @@ terraform.rc
 *.zip
 settings.json
 TODO.md
+.DS_Store

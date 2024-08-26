@@ -1,11 +1,15 @@
 <!-- BEGIN_TF_DOCS -->
 # Usage Example
 
-This is a basic example setup on using the module.
+Follow the steps below to deploy the module and attach it to your Terraform Cloud organization.
 
-* Make sure the Docker image has been built and pushed from the `src` folder, [follow this Readme](../../src/README.md)
+* Build and package the Lambda files
 
-* Create infrastrucutre
+  ```
+  make all
+  ```
+
+* Deploy the module
 
   ```bash
   terraform init
@@ -64,7 +68,6 @@ This is a basic example setup on using the module.
 |------|-------------|------|---------|:--------:|
 | <a name="input_hcp_tf_org"></a> [hcp\_tf\_org](#input\_hcp\_tf\_org) | HCP Terraform Organization name | `string` | n/a | yes |
 | <a name="input_hcp_tf_token"></a> [hcp\_tf\_token](#input\_hcp\_tf\_token) | HCP Terraform API token | `string` | n/a | yes |
-| <a name="input_tf_run_task_logic_image"></a> [tf\_run\_task\_logic\_image](#input\_tf\_run\_task\_logic\_image) | Docker image for the HCP Terraform run task logic | `string` | n/a | yes |
 | <a name="input_region"></a> [region](#input\_region) | AWS region to deploy the resources | `string` | `"us-east-1"` | no |
 | <a name="input_tf_run_task_image_tag"></a> [tf\_run\_task\_image\_tag](#input\_tf\_run\_task\_image\_tag) | value for the docker image tag to be used by the run task logic | `string` | `"latest"` | no |
 | <a name="input_tf_run_task_logic_iam_roles"></a> [tf\_run\_task\_logic\_iam\_roles](#input\_tf\_run\_task\_logic\_iam\_roles) | values for the IAM roles to be used by the run task logic | `list(string)` | `[]` | no |
