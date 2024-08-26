@@ -5,12 +5,11 @@ import logging
 import subprocess
 
 from utils import logger, stream_messages, tool_config
-from runtask_utils import convert_to_markdown, generate_runtask_result
+from runtask_utils import generate_runtask_result
 from tools.get_ami_releases import GetECSAmisReleases
 
 # Initialize model_id and region
 model_id = "anthropic.claude-3-sonnet-20240229-v1:0"
-aws_region = "us-west-2"
 
 # Config to avoid timeouts when using long prompts
 config = botocore.config.Config(
@@ -19,7 +18,7 @@ config = botocore.config.Config(
 
 session = boto3.Session()
 bedrock_client = session.client(
-    service_name="bedrock-runtime", region_name=aws_region, config=config
+    service_name="bedrock-runtime", config=config
 )
 
 # Input is the terraform plan JSON

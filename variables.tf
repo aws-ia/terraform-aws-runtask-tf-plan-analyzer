@@ -151,3 +151,9 @@ variable "waf_managed_rule_set" {
     }
   ]
 }
+
+variable "bedrock_llm_model" {
+  description = "Bedrock LLM model to use"
+  type        = string
+  default     = "anthropic.claude-3-sonnet-20240229-v1:0"
+}

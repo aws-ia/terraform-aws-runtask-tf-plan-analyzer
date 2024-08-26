@@ -4,6 +4,7 @@ import json
 import time
 import logging
 import requests
+import boto3
 
 import ai
 import runtask_utils
@@ -15,30 +16,26 @@ log_level = os.environ.get("log_level", logging.INFO)
 logger = logging.getLogger()
 logger.setLevel(log_level)
 
+session = boto3.Session()
+cwl_client = session.client('logs')
 
 # THIS IS THE MAIN FUNCTION TO IMPLEMENT BUSINESS LOGIC
 # TO PROCESS THE TERRFORM PLAN FILE or TERRAFORM CONFIG (.tar.gz)
 # SCHEMA - https://developer.hashicorp.com/terraform/cloud-docs/api-docs/run-tasks/run-tasks-integration#severity-and-status-tags
-def process_run_task(type: str, data: str):
+def process_run_task(type: str, data: str, run_id: str):
     url = None
     results = []
     status = "passed"
-    message = "Run task description!"
+    message = "Placeholder value"
 
     cw_log_group_name = os.environ.get("CW_LOG_GROUP_NAME", None)
     if cw_log_group_name and region:
         lg_name = cw_log_group_name.replace("/", "$252F")
-        url = f"https://{region}.console.aws.amazon.com/cloudwatch/home?region={region}#logsV2:log-groups/log-group/{lg_name}"
+        url = f"https://{region}.console.aws.amazon.com/cloudwatch/home?region={region}#logsV2:log-groups/log-group/{lg_name}/log-events/{run_id}"
 
     if type == "pre_plan":
-
-        with open(data, "wb") as file:
-            file.write(response.content)
-
-        with tarfile.open(data, "r:gz") as tar:
-            tar.extractall(path="pre_plan")
-
         # --> Process the Terraform config file here and change the above values accordingly
+        logger.debug(f"Processing plan: {data}")
 
     elif type == "post_plan":
 
@@ -47,6 +44,23 @@ def process_run_task(type: str, data: str):
         message, results = ai.eval(data)
 
     return url, status, message, results
+
+def write_run_task_log(run_id: str, results: list, cw_log_group_dest: str):
+    for result in results:
+        if result["type"] == "task-result-outcomes":
+            runtask_utils.log_helper(
+                cwl_client = cwl_client, 
+                log_group_name = cw_log_group_dest, 
+                log_stream_name = run_id,
+                log_message = result["attributes"]["description"]
+            )
+
+            runtask_utils.log_helper(
+                cwl_client = cwl_client, 
+                log_group_name = cw_log_group_dest, 
+                log_stream_name = run_id,
+                log_message = result["attributes"]["body"]
+            )
 
 # Main handler for the Lambda function
 def lambda_handler(event, context):
@@ -94,7 +108,7 @@ def lambda_handler(event, context):
 
                 # Run the implemented business logic here
                 url, status, message, results = process_run_task(
-                    type="pre_plan", path=config_file
+                    type="pre_plan", path=config_file, run_id=run_id
                 )
 
             elif event["payload"]["detail"]["stage"] == "post_plan":
@@ -114,8 +128,13 @@ def lambda_handler(event, context):
 
                     # Run the implemented business logic here
                     url, status, message, results = process_run_task(
-                        type="post_plan", data=plan_json
+                        type="post_plan", data=plan_json, run_id=run_id
                     )
+
+                    # Write output to cloudwatch log 
+                    cw_log_group_dest = os.environ.get("CW_LOG_GROUP_NAME", None)
+                    if cw_log_group_dest != None:
+                        write_run_task_log(run_id, results, cw_log_group_dest)
 
                 if error:
                     logger.debug(f"{error}")

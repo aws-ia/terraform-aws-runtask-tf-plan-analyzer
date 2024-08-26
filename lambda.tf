@@ -162,7 +162,7 @@ resource "aws_lambda_function" "runtask_fulfillment" {
   }
   environment {
     variables = {
-      CW_LOG_GROUP_NAME = "/aws/lambda/${local.solution_prefix}-runtask-fulfillment"
+      CW_LOG_GROUP_NAME = local.cloudwatch_log_group_name
     }
   }
   tags = local.combined_tags
