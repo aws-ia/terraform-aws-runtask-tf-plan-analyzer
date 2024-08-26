@@ -19,3 +19,12 @@ export TF_TOKEN_app_terraform_io=`aws secretsmanager get-secret-value --secret-i
 #********** MAKEFILE *************
 echo "Build the lambda function packages"
 make all
+
+#********** Get tfvars from SSM *************
+echo "Get *.tfvars from SSM parameter"
+aws ssm get-parameter \
+  --name "/abp/hcp/functional/terraform-aws-runtask-tf-plan-analyzer/terraform_tests.tfvars" \
+  --with-decryption \
+  --query "Parameter.Value" \
+  --output "text" \
+  --region $AWS_DEFAULT_REGION >> ./tests/terraform.auto.tfvars

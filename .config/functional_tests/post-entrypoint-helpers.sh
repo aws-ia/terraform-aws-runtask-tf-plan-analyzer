@@ -14,3 +14,4 @@ cd ${PROJECT_PATH}
 echo "Cleaning up all temp files and artifacts"
 cd ${PROJECT_PATH}
 make -s clean
+rm -rf ./tests/terraform.auto.tfvars
