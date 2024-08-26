@@ -1,14 +1,20 @@
 <!-- BEGIN_TF_DOCS -->
 # Runtask Terraform Plan Analyzer
 
+## Overview
+
 Integrate Amazon Bedrock to your HashiCorp Cloud Platform Terraform (Terraform Cloud) Run Tasks for:
+
 * Analyzing Terraform plan and generate short-summary
+
 * Function calling for other API-based analysis (e.g AMI analysis)
 
 ### Terraform plan summary
+
 ![Example](./images/example.png)
 
 ### Function calling (AMI analysis)
+
 ![Example2](./images/example2.png)
 
 ## Architecture
