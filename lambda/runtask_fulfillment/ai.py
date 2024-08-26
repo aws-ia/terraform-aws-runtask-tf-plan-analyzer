@@ -3,13 +3,15 @@ import boto3
 import botocore
 import logging
 import subprocess
+import os
 
 from utils import logger, stream_messages, tool_config
 from runtask_utils import generate_runtask_result
 from tools.get_ami_releases import GetECSAmisReleases
 
 # Initialize model_id and region
-model_id = "anthropic.claude-3-sonnet-20240229-v1:0"
+default_model_id = "anthropic.claude-3-sonnet-20240229-v1:0"
+model_id = os.environ.get("BEDROCK_LLM_MODEL", default_model_id)
 
 # Config to avoid timeouts when using long prompts
 config = botocore.config.Config(
@@ -119,11 +121,11 @@ def eval(tf_plan_json):
         <output>
         Now, given the following analysis, compare any old with new AMIs:
         """
-    
+
     prompt += f"""
         <analysis>{analysis_response_text}</analysis>
         """
-    
+
     messages = [{"role": "user", "content": [{"text": prompt}]}]
 
     stop_reason, response = stream_messages(

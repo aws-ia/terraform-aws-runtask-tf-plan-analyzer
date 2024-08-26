@@ -49,15 +49,15 @@ def write_run_task_log(run_id: str, results: list, cw_log_group_dest: str):
     for result in results:
         if result["type"] == "task-result-outcomes":
             runtask_utils.log_helper(
-                cwl_client = cwl_client, 
-                log_group_name = cw_log_group_dest, 
+                cwl_client = cwl_client,
+                log_group_name = cw_log_group_dest,
                 log_stream_name = run_id,
                 log_message = result["attributes"]["description"]
             )
 
             runtask_utils.log_helper(
-                cwl_client = cwl_client, 
-                log_group_name = cw_log_group_dest, 
+                cwl_client = cwl_client,
+                log_group_name = cw_log_group_dest,
                 log_stream_name = run_id,
                 log_message = result["attributes"]["body"]
             )
@@ -131,7 +131,7 @@ def lambda_handler(event, context):
                         type="post_plan", data=plan_json, run_id=run_id
                     )
 
-                    # Write output to cloudwatch log 
+                    # Write output to cloudwatch log
                     cw_log_group_dest = os.environ.get("CW_LOG_GROUP_NAME", None)
                     if cw_log_group_dest != None:
                         write_run_task_log(run_id, results, cw_log_group_dest)

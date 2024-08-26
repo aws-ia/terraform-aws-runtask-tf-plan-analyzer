@@ -27,11 +27,6 @@ variable "workspace_prefix" {
   default     = ""
 }
 
-variable "run_task_fulfillment_image" {
-  description = "The image with the Lambda fulfillment code, please see the src/ folder for more details"
-  type        = string
-}
-
 variable "run_task_iam_roles" {
   description = "List of IAM roles to be attached to the Lambda function"
   type        = list(string)

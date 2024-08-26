@@ -163,6 +163,7 @@ resource "aws_lambda_function" "runtask_fulfillment" {
   environment {
     variables = {
       CW_LOG_GROUP_NAME = local.cloudwatch_log_group_name
+      BEDROCK_LLM_MODEL = var.bedrock_llm_model
     }
   }
   tags = local.combined_tags
