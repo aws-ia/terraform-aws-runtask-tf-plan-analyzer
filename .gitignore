@@ -1,5 +1,6 @@
 # Local .terraform directories
 **/.terraform/*
+**/.terraform
 
 # .tfstate files
 *.tfstate
@@ -41,3 +42,5 @@ terraform.rc
 **/site-packages
 *.zip
 settings.json
+TODO.md
+.DS_Store

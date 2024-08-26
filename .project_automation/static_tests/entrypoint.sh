@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## WARNING: DO NOT modify the content of entrypoint.sh
-# Use ./config/static_tests/pre-entrypoint-helpers.sh or ./config/static_tests/post-entrypoint-helpers.sh 
+# Use ./config/static_tests/pre-entrypoint-helpers.sh or ./config/static_tests/post-entrypoint-helpers.sh
 # to load any customizations or additional configurations
 
 ## NOTE: paths may differ when running in a managed task. To ensure behavior is consistent between
@@ -22,7 +22,7 @@ pre_entrypoint() {
 post_entrypoint() {
     if [ -f ${PROJECT_PATH}/.config/static_tests/post-entrypoint-helpers.sh ]; then
         echo "Post-entrypoint helper found"
-        source ${PROJECT_PATH}/.config/static_tests/post-entrypoint-helpers.sh        
+        source ${PROJECT_PATH}/.config/static_tests/post-entrypoint-helpers.sh
         echo "Post-entrypoint helper loaded"
     else
         echo "Post-entrypoint helper not found - skipped"

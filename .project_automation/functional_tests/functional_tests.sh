@@ -20,7 +20,7 @@ if test -f ${MANDATORY_TEST_PATH}; then
 else
     echo "File ${MANDATORY_TEST_PATH} not found. You must include at least one test run in file ${MANDATORY_TEST_PATH}"
     (exit 1)
-fi 
+fi
 
 if [ $? -eq 0 ]; then
     echo "Terraform Test Successfull"

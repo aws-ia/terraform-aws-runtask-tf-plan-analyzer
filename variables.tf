@@ -1,7 +1,13 @@
 variable "name_prefix" {
   description = "Name to be used on all the resources as identifier."
   type        = string
-  default     = "hcp-tf"
+  default     = "runtask-tf-plan-analyzer"
+}
+
+variable "tags" {
+  description = "Map of tags to apply to resources deployed by this solution."
+  type        = map(any)
+  default     = null
 }
 
 variable "hcp_tf_org" {
@@ -19,11 +25,6 @@ variable "workspace_prefix" {
   description = "HCP Terraform workspace name prefix that allowed to run this run task"
   type        = string
   default     = ""
-}
-
-variable "run_task_fulfillment_image" {
-  description = "The image with the Lambda fulfillment code, please see the src/ folder for more details"
-  type        = string
 }
 
 variable "run_task_iam_roles" {
@@ -88,7 +89,27 @@ variable "lambda_reserved_concurrency" {
 variable "lambda_default_timeout" {
   description = "Lambda default timeout in seconds"
   type        = number
-  default     = 30
+  default     = 120
+}
+
+variable "lambda_architecture" {
+  description = "Lambda architecture (arm64 or x86_64)"
+  type        = string
+  default     = "x86_64"
+  validation {
+    condition     = contains(["arm64", "x86_64"], var.lambda_architecture)
+    error_message = "Valid values for var: lambda_architecture are arm64 or x86_64"
+  }
+}
+
+variable "lambda_python_runtime" {
+  description = "Lambda Python runtime"
+  type        = string
+  default     = "python3.11"
+  validation {
+    condition     = contains(["python3.11", "python3.10", "python3.9"], var.lambda_python_runtime)
+    error_message = "Valid values for var: lambda_python_runtime are python3.11, python3.10, python3.9"
+  }
 }
 
 variable "deploy_waf" {
@@ -124,4 +145,10 @@ variable "waf_managed_rule_set" {
       metric_suffix = "bad_input"
     }
   ]
+}
+
+variable "bedrock_llm_model" {
+  description = "Bedrock LLM model to use"
+  type        = string
+  default     = "anthropic.claude-3-sonnet-20240229-v1:0"
 }
