@@ -143,6 +143,7 @@ resource "aws_lambda_function" "runtask_edge" {
   #checkov:skip=CKV_AWS_117:VPC is not required
   #checkov:skip=CKV_AWS_173:no sensitive data in env var
   #checkov:skip=CKV_AWS_272:skip code-signing
+  #checkov:skip=CKV_AWS_50:no x-ray for lambda@edge
 }
 
 ################# Run task Fulfillment ##################
