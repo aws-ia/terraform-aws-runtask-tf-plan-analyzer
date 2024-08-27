@@ -1,9 +1,9 @@
 <!-- BEGIN_TF_DOCS -->
-# Terraform Run Task Plan Analyzer
+# Runtask Terraform Plan Analyzer
 
 ## Overview
 
-Integrate Amazon Bedrock to your HashiCorp Cloud Platform Terraform (Terraform Cloud) run tasks for:
+Integrate Amazon Bedrock to your HashiCorp Cloud Platform Terraform (Terraform Cloud) Run Tasks for:
 
 * Analyzing Terraform plan and generate short-summary
 
