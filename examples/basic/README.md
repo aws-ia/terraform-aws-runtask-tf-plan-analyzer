@@ -1,7 +1,7 @@
 <!-- BEGIN_TF_DOCS -->
 # Usage Example
 
-Follow the steps below to deploy the module and attach it to your Terraform Cloud organization.
+Follow the steps below to deploy the module and attach it to your HCP Terraform (Terraform Cloud) organization.
 
 * Build and package the Lambda files
 

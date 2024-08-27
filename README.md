@@ -11,11 +11,18 @@ Integrate Amazon Bedrock to your HashiCorp Cloud Platform Terraform (Terraform C
 
 ### Terraform plan summary
 
+Summarize Terraform plan output in human friendly natural language.
 ![Example](./images/example.png)
 
 ### Function calling (AMI analysis)
 
+Use function calling to execute other tools, such as analyzing AMI data.
 ![Example2](./images/example2.png)
+
+### Responsible AI
+
+Implement safeguards using Amazon Bedrock guardrails customized to your organization requirements and responsible AI policies
+![Example3](./images/example3.png)
 
 ## Architecture
 
@@ -30,6 +37,7 @@ Please refer to the [best-practice](#best-practice) section below for more detai
 To use this module you need have the following:
 
 1. AWS account and credentials
+1. Amazon Bedrock model access (default model is `Claude 3 Sonnet`)
 1. HCP Terraform account
 
 ## Usage
@@ -39,6 +47,8 @@ To use this module you need have the following:
   ```
   make all
   ```
+
+* Enable Bedrock model access for `Claude 3 Sonnet`. Refer to [this guide for more info](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html).
 
 * Reference the `examples/basic` folder on how to use this module
 
@@ -59,6 +69,8 @@ To use this module you need have the following:
 
 * We recommend you to setup additional CloudWatch alarm to monitor Lambda concurrency and WAF rules.
 
+* We recommend to add additional topic to the Bedrock Guardrail to fit your organization requirements.
+
 ## Requirements
 
 | Name | Version |
@@ -66,6 +78,7 @@ To use this module you need have the following:
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0 |
 | <a name="requirement_archive"></a> [archive](#requirement\_archive) | ~>2.2.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.47.0 |
+| <a name="requirement_awscc"></a> [awscc](#requirement\_awscc) | >= 1.11.0 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | >=3.4.0 |
 
 ## Providers
@@ -75,6 +88,7 @@ To use this module you need have the following:
 | <a name="provider_archive"></a> [archive](#provider\_archive) | ~>2.2.0 |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.47.0 |
 | <a name="provider_aws.cloudfront_waf"></a> [aws.cloudfront\_waf](#provider\_aws.cloudfront\_waf) | >= 5.47.0 |
+| <a name="provider_awscc"></a> [awscc](#provider\_awscc) | >= 1.11.0 |
 | <a name="provider_random"></a> [random](#provider\_random) | >=3.4.0 |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
 | <a name="provider_time"></a> [time](#provider\_time) | n/a |
@@ -136,6 +150,8 @@ To use this module you need have the following:
 | [aws_sfn_state_machine.runtask_states](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sfn_state_machine) | resource |
 | [aws_wafv2_web_acl.runtask_waf](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/wafv2_web_acl) | resource |
 | [aws_wafv2_web_acl_logging_configuration.runtask_waf](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/wafv2_web_acl_logging_configuration) | resource |
+| [awscc_bedrock_guardrail.runtask_fulfillment](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_guardrail) | resource |
+| [awscc_bedrock_guardrail_version.runtask_fulfillment](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_guardrail_version) | resource |
 | [random_string.solution_prefix](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
 | [random_uuid.runtask_cloudfront](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/uuid) | resource |
 | [random_uuid.runtask_hmac](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/uuid) | resource |
