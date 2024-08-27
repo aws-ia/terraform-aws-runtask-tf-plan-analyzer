@@ -12,6 +12,8 @@ from tools.get_ami_releases import GetECSAmisReleases
 # Initialize model_id and region
 default_model_id = "anthropic.claude-3-sonnet-20240229-v1:0"
 model_id = os.environ.get("BEDROCK_LLM_MODEL", default_model_id)
+guardrail_id = os.environ.get("BEDROCK_GUARDRAIL_ID", None)
+guardrail_version = os.environ.get("BEDROCK_GUARDRAIL_VERSION", None)
 
 # Config to avoid timeouts when using long prompts
 config = botocore.config.Config(
@@ -207,6 +209,55 @@ def eval(tf_plan_json):
     logger.info("Terraform plan summary: {}".format(description))
 
     results = []
-    results.append(generate_runtask_result(outcome_id="Plan-Summary", description="Summary of Terraform plan", result=description[:700]))
-    results.append(generate_runtask_result(outcome_id="AMI-Summary", description="Summary of AMI changes", result=result[:700]))
+
+    guardrail_status, guardrail_response = guardrail_inspection(str(description))
+    if guardrail_status:
+        results.append(generate_runtask_result(outcome_id="Plan-Summary", description="Summary of Terraform plan", result=description[:700]))
+    else:
+        results.append(generate_runtask_result(outcome_id="Plan-Summary", description="Summary of Terraform plan", result="Output omitted due to : {}".format(guardrail_response)))
+        description = "Bedrock guardrail triggered : {}".format(guardrail_response)
+
+    guardrail_status, guardrail_response = guardrail_inspection(str(result))
+    if guardrail_status:
+        results.append(generate_runtask_result(outcome_id="AMI-Summary", description="Summary of AMI changes", result=result[:700]))
+    else:
+        results.append(generate_runtask_result(outcome_id="AMI-Summary", description="Summary of AMI changes", result="Output omitted due to : {}".format(guardrail_response)))
+
     return description, results
+
+def guardrail_inspection(input_text, input_mode = 'OUTPUT'):
+
+    #####################################################################
+    ##### Inspect input / output against Bedrock Guardrail          #####
+    #####################################################################
+
+    if guardrail_id and guardrail_version:
+        logger.info("##### Scanning Terraform plan output with Amazon Bedrock Guardrail #####")
+
+        response = bedrock_client.apply_guardrail(
+            guardrailIdentifier=guardrail_id,
+            guardrailVersion=guardrail_version,
+            source=input_mode,
+            content=[
+                {
+                    'text': {
+                        'text': input_text,
+                    }
+                },
+            ]
+        )
+
+        logger.debug("Guardrail inspection result : {}".format(json.dumps(response)))
+
+        if response["action"] in ["GUARDRAIL_INTERVENED"]:
+            logger.info("Guardrail action : {}".format(response["action"]))
+            logger.info("Guardrail output : {}".format(response["outputs"]))
+            logger.debug("Guardrail assessments : {}".format(response["assessments"]))
+            return False, response["outputs"][0]["text"]
+
+        elif response["action"] in ["NONE"]:
+            logger.info("No Guardrail action required")
+            return True, "No Guardrail action required"
+
+    else:
+        return True, "Guardrail inspection skipped"
