@@ -68,12 +68,6 @@ resource "awscc_bedrock_guardrail" "runtask_fulfillment" {
         type   = "AWS_SECRET_KEY"
       },
     ]
-    regexes_config = [{
-      action      = "BLOCK"
-      description = "example regex"
-      name        = "regex_example"
-      pattern     = "^\\d{3}-\\d{2}-\\d{4}$"
-    }]
   }
 
   # block select word / profanity
