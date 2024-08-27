@@ -78,6 +78,7 @@ To use this module you need have the following:
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0 |
 | <a name="requirement_archive"></a> [archive](#requirement\_archive) | ~>2.2.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.47.0 |
+| <a name="requirement_awscc"></a> [awscc](#requirement\_awscc) | >= 1.11.0 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | >=3.4.0 |
 
 ## Providers
@@ -87,7 +88,7 @@ To use this module you need have the following:
 | <a name="provider_archive"></a> [archive](#provider\_archive) | ~>2.2.0 |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.47.0 |
 | <a name="provider_aws.cloudfront_waf"></a> [aws.cloudfront\_waf](#provider\_aws.cloudfront\_waf) | >= 5.47.0 |
-| <a name="provider_awscc"></a> [awscc](#provider\_awscc) | n/a |
+| <a name="provider_awscc"></a> [awscc](#provider\_awscc) | >= 1.11.0 |
 | <a name="provider_random"></a> [random](#provider\_random) | >=3.4.0 |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
 | <a name="provider_time"></a> [time](#provider\_time) | n/a |
