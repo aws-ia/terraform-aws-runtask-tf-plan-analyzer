@@ -1,9 +1,8 @@
-import hashlib
 import base64
-import os
+import hashlib
 import json
-from urllib.parse import parse_qs, urlencode
 import logging
+import os
 
 logger = logging.getLogger()
 log_level = os.environ.get("log_level", logging.INFO)
@@ -11,7 +10,8 @@ log_level = os.environ.get("log_level", logging.INFO)
 logger.setLevel(log_level)
 logger.info("Log level set to %s" % logger.getEffectiveLevel())
 
-def lambda_handler(event, context):
+
+def lambda_handler(event, _):
     logger.info("Incoming event : {}".format(json.dumps(event)))
     request = event['Records'][0]['cf']['request']
     headers = request["headers"]
@@ -31,8 +31,10 @@ def lambda_handler(event, context):
     logger.info("Returning request: %s" % json.dumps(request))
     return request
 
+
 def decode_body(encoded_body):
     return base64.b64decode(encoded_body).decode('utf-8')
+
 
 def calculate_payload_hash(payload):
     ## generate sha256 from payload

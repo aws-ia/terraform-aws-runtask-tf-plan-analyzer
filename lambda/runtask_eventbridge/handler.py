@@ -25,7 +25,6 @@ import hashlib
 import logging
 import urllib.parse
 import boto3
-import botocore
 import botocore.session
 
 from cgi import parse_header
@@ -63,7 +62,7 @@ class PutEventError(Exception):
     """Raised when Put Events Failed"""
     pass
 
-def lambda_handler(event, _context):
+def lambda_handler(event, _):
     """Terraform run task function"""
     logger.debug(json.dumps(event))
 
@@ -149,7 +148,7 @@ def contains_valid_cloudfront_signature(
 
 def contains_valid_signature(event):
     """Check for the payload signature
-    HashiCorp Terraform run task documention: https://developer.hashicorp.com/terraform/cloud-docs/integrations/run-tasks#securing-your-run-task
+    HashiCorp Terraform run task documentation: https://developer.hashicorp.com/terraform/cloud-docs/integrations/run-tasks#securing-your-run-task
     """
     secret = cache.get_secret_string(hcp_tf_hmac_secret_arn)
     payload_bytes = get_payload_bytes(

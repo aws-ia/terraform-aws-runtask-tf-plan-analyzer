@@ -1,14 +1,12 @@
+import json
+import logging
 import os
 import re
-import json
-import tarfile
-import hashlib
-import logging
-import requests
 import time
-
-from urllib.request import urlopen, Request
 from urllib.error import HTTPError, URLError
+from urllib.request import urlopen, Request
+
+import requests
 
 logging.basicConfig(format="%(levelname)s: %(message)s")
 logger = logging.getLogger()
@@ -59,7 +57,7 @@ def get_plan(url, access_token) -> str:
     except URLError as error:
         logger.error(str(f"URL error: {error.reason}"))
         return None, f"URL Error: {str(error)}"
-    except TimeoutError:
+    except TimeoutError as error:
         logger.error(f"Timeout error: {str(error)}")
         return None, f"Timeout Error: {str(error)}"
     except Exception as error:
@@ -115,7 +113,7 @@ def log_helper(cwl_client, log_group_name, log_stream_name, log_message): # help
             SEQUENCE_TOKEN = log_writer(cwl_client, log_group_name, log_stream_name, log_message)["nextSequenceToken"]
 
 def log_writer(cwl_client, log_group_name, log_stream_name, log_message, sequence_token = False): # writer to CloudWatch log stream based on sequence token
-    if sequence_token: # if token exist, append to the previous token stream
+    if sequence_token: # if token exists, append to the previous token stream
         response = cwl_client.put_log_events(
             logGroupName = log_group_name,
             logStreamName = log_stream_name,

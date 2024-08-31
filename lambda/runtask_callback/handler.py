@@ -21,7 +21,6 @@ import os
 import re
 from urllib.request import urlopen, Request
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
 
 HCP_TF_HOST_NAME = os.environ.get("HCP_TF_HOST_NAME", "app.terraform.io")
 
@@ -32,7 +31,7 @@ logger.setLevel(log_level)
 logger.info("Log level set to %s" % logger.getEffectiveLevel())
 
 
-def lambda_handler(event, context):
+def lambda_handler(event, _):
     logger.debug(json.dumps(event))
     try:
         # trim empty url from the payload

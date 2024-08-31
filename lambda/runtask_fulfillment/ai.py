@@ -1,13 +1,12 @@
 import json
-import boto3
-import botocore
-import logging
-import subprocess
 import os
 
-from utils import logger, stream_messages, tool_config
+import boto3
+import botocore
+
 from runtask_utils import generate_runtask_result
 from tools.get_ami_releases import GetECSAmisReleases
+from utils import logger, stream_messages, tool_config
 
 # Initialize model_id and region
 default_model_id = "anthropic.claude-3-sonnet-20240229-v1:0"

@@ -1,9 +1,7 @@
-import os
-import sys
 import json
-import time
 import logging
-import requests
+import os
+
 import boto3
 
 import ai
@@ -20,7 +18,7 @@ session = boto3.Session()
 cwl_client = session.client('logs')
 
 # THIS IS THE MAIN FUNCTION TO IMPLEMENT BUSINESS LOGIC
-# TO PROCESS THE TERRFORM PLAN FILE or TERRAFORM CONFIG (.tar.gz)
+# TO PROCESS THE TERRAFORM PLAN FILE or TERRAFORM CONFIG (.tar.gz)
 # SCHEMA - https://developer.hashicorp.com/terraform/cloud-docs/api-docs/run-tasks/run-tasks-integration#severity-and-status-tags
 def process_run_task(type: str, data: str, run_id: str):
     url = None
@@ -63,7 +61,7 @@ def write_run_task_log(run_id: str, results: list, cw_log_group_dest: str):
             )
 
 # Main handler for the Lambda function
-def lambda_handler(event, context):
+def lambda_handler(event, _):
 
     logger.debug(json.dumps(event, indent=4))
 

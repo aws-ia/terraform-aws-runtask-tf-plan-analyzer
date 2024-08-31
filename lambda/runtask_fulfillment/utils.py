@@ -6,27 +6,28 @@ logging.basicConfig(format='%(levelname)s: %(message)s')
 logger = logging.getLogger()
 
 tool_config = {
-            "tools": [
-                {
-                    "toolSpec": {
-                        "name": "GetECSAmisReleases",
-                        "description": "Get Amazon Elastic Container Service (ECS) Amazon Machine Images (AMIs) detail information.",
-                        "inputSchema": {
-                            "json": {
-                                "type": "object",
-                                "properties": {
-                                    "image_ids": {
-                                        "type": "array",
-                                        "description": "List of Amazon machine image (AMI) ids"
-                                    }
-                                },
-                                "required": ["image_ids"]
+    "tools": [
+        {
+            "toolSpec": {
+                "name": "GetECSAmisReleases",
+                "description": "Get Amazon Elastic Container Service (ECS) Amazon Machine Images (AMIs) detail information.",
+                "inputSchema": {
+                    "json": {
+                        "type": "object",
+                        "properties": {
+                            "image_ids": {
+                                "type": "array",
+                                "description": "List of Amazon machine image (AMI) ids"
                             }
-                        }
+                        },
+                        "required": ["image_ids"]
                     }
                 }
-            ]
+            }
         }
+    ]
+}
+
 
 # Bedrock streaming method
 def stream_messages(bedrock_client,
@@ -40,7 +41,7 @@ def stream_messages(bedrock_client,
     Args:
         bedrock_client: The Boto3 Bedrock runtime client.
         model_id (str): The model ID to use.
-        messages (JSON) : The messages to send to the model.
+        messages (JSON): The messages to send to the model.
         tool_config : Tool Information to send to the model.
 
     Returns:
@@ -53,14 +54,14 @@ def stream_messages(bedrock_client,
         inference_config['stopSequences'] = stop_sequences
 
     logger.info("Streaming messages with model %s", model_id)
-    system_prompts = [{"text" : system_text}]
+    system_prompts = [{"text": system_text}]
 
     if tool_config is None:
         response = bedrock_client.converse_stream(
             modelId=model_id,
             messages=messages,
             system=system_prompts,
-            inferenceConfig = inference_config
+            inferenceConfig=inference_config
         )
     else:
         response = bedrock_client.converse_stream(
@@ -68,7 +69,7 @@ def stream_messages(bedrock_client,
             messages=messages,
             system=system_prompts,
             toolConfig=tool_config,
-            inferenceConfig = inference_config
+            inferenceConfig=inference_config
         )
 
     stop_reason = ""
