@@ -101,7 +101,7 @@ def lambda_handler(event, _):
                     configuration_version_download_url, access_token
                 )
                 logger.debug(
-                    f"Config downloaded for Workspace: {organization_name}/{workspace_name}, Run: {run_id}\n downloaded at {os.getcwd()}/config"
+                    f"Config downloaded for Workspace: {organization_name}/{workspace_id}, Run: {run_id}\n downloaded at {os.getcwd()}/config"
                 )
 
                 # Run the implemented business logic here

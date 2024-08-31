@@ -147,7 +147,6 @@ def eval(tf_plan_json):
                 tool = content["toolUse"]
 
                 if tool["name"] == "GetECSAmisReleases":
-                    tool_result = {}
 
                     release_details = GetECSAmisReleases().execute(
                         tool["input"]["image_ids"]
