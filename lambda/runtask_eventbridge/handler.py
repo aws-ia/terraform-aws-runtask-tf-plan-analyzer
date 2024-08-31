@@ -102,7 +102,7 @@ def lambda_handler(event, _):
             )
             return {
                 "statusCode": 500,
-                "body": "FailedEntry Error - The entry could not be succesfully forwarded to Amazon EventBridge",
+                "body": "FailedEntry Error - The entry could not be successfully forwarded to Amazon EventBridge",
             }
 
         return {"statusCode": 200, "body": "Message forwarded to Amazon EventBridge"}
