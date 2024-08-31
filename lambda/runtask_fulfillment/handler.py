@@ -106,7 +106,7 @@ def lambda_handler(event, _):
 
                 # Run the implemented business logic here
                 url, status, message, results = process_run_task(
-                    type="pre_plan", path=config_file, run_id=run_id
+                    type="pre_plan", data=config_file, run_id=run_id
                 )
 
             elif event["payload"]["detail"]["stage"] == "post_plan":
