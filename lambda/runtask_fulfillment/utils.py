@@ -42,7 +42,9 @@ def stream_messages(bedrock_client,
         bedrock_client: The Boto3 Bedrock runtime client.
         model_id (str): The model ID to use.
         messages (JSON): The messages to send to the model.
+        system_text (str): The system text to send to the model.
         tool_config : Tool Information to send to the model.
+        stop_sequences: Stop sequences to send to the model.
 
     Returns:
         stop_reason (str): The reason why the model stopped generating text.
