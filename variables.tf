@@ -71,7 +71,7 @@ variable "aws_region" {
 }
 
 variable "recovery_window" {
-  description = "Numbers of day Number of days that AWS Secrets Manager waits before it can delete the secret"
+  description = "Number of days that AWS Secrets Manager waits before it can delete the secret"
   type        = number
   default     = 0
   validation {

@@ -18,7 +18,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import json
 import logging
 import os
-from time import sleep
 
 HCP_TF_ORG = os.environ.get("HCP_TF_ORG", False)
 WORKSPACE_PREFIX = os.environ.get("WORKSPACE_PREFIX", False)
@@ -31,7 +30,7 @@ logger.setLevel(log_level)
 logger.info("Log level set to %s" % logger.getEffectiveLevel())
 
 
-def lambda_handler(event, context):
+def lambda_handler(event, _):
     logger.debug(json.dumps(event))
     try:
         VERIFY = True

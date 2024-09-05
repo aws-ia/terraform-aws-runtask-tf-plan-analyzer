@@ -1,17 +1,15 @@
 import json
-import boto3
-import botocore
-import logging
-import subprocess
 import os
 
-from utils import logger, stream_messages, tool_config
+import boto3
+import botocore
+
 from runtask_utils import generate_runtask_result
 from tools.get_ami_releases import GetECSAmisReleases
+from utils import logger, stream_messages, tool_config
 
 # Initialize model_id and region
-default_model_id = "anthropic.claude-3-sonnet-20240229-v1:0"
-model_id = os.environ.get("BEDROCK_LLM_MODEL", default_model_id)
+model_id = os.environ.get("BEDROCK_LLM_MODEL")
 guardrail_id = os.environ.get("BEDROCK_GUARDRAIL_ID", None)
 guardrail_version = os.environ.get("BEDROCK_GUARDRAIL_VERSION", None)
 
@@ -148,7 +146,6 @@ def eval(tf_plan_json):
                 tool = content["toolUse"]
 
                 if tool["name"] == "GetECSAmisReleases":
-                    tool_result = {}
 
                     release_details = GetECSAmisReleases().execute(
                         tool["input"]["image_ids"]

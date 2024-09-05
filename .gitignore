@@ -44,3 +44,5 @@ terraform.rc
 settings.json
 TODO.md
 .DS_Store
+.idea
+.venv
