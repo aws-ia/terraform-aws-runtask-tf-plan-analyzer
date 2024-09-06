@@ -86,13 +86,11 @@ def eval(tf_plan_json):
         bedrock_client, model_id, messages, system_text
     )
 
-    logger.info("Analysis response: {}".format(analysis_response))
+    logger.debug("Analysis response: {}".format(analysis_response))
 
     analysis_response_text= clean_response(analysis_response["content"][0]["text"])["resources"]
 
-    # analysis_response_text = json.loads(analysis_response["content"][0]["text"].replace('<schema>', '').replace('</schema>', ''))["resources"]
-
-    logger.info("Analysis response Text: {}".format(analysis_response_text))
+    logger.debug("Analysis response Text: {}".format(analysis_response_text))
 
     #####################################################################
     ######## Secondly, evaluate AMIs per analysis                ########
@@ -251,7 +249,7 @@ def guardrail_inspection(input_text, input_mode = 'OUTPUT'):
             ]
         )
 
-        logger.info("Guardrail inspection result : {}".format(json.dumps(response)))
+        logger.debug("Guardrail inspection result : {}".format(json.dumps(response)))
 
         if response["action"] in ["GUARDRAIL_INTERVENED"]:
             logger.info("Guardrail action : {}".format(response["action"]))
