@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 import boto3
 import botocore
@@ -35,7 +36,7 @@ def eval(tf_plan_json):
     List the resources that will be created, modified or deleted in the following terraform plan using the following rules:
     1. Think step by step using the "thinking" json field
     2. For AMI changes, include the old and new AMI ID
-    3. Use the following schema
+    3. Use the following schema. Skip the preamble:
     <schema>
     {
         "$id": "https://example.com/arrays.schema.json",
@@ -85,9 +86,13 @@ def eval(tf_plan_json):
         bedrock_client, model_id, messages, system_text
     )
 
-    analysis_response_text = json.loads(analysis_response["content"][0]["text"])[
-        "resources"
-    ]
+    logger.info("Analysis response: {}".format(analysis_response))
+
+    analysis_response_text= clean_response(analysis_response["content"][0]["text"])["resources"]
+
+    # analysis_response_text = json.loads(analysis_response["content"][0]["text"].replace('<schema>', '').replace('</schema>', ''))["resources"]
+
+    logger.info("Analysis response Text: {}".format(analysis_response_text))
 
     #####################################################################
     ######## Secondly, evaluate AMIs per analysis                ########
@@ -150,9 +155,11 @@ def eval(tf_plan_json):
                     release_details = GetECSAmisReleases().execute(
                         tool["input"]["image_ids"]
                     )
+                    release_details_info = release_details if release_details else "No release notes were found the ami."
+
                     tool_result = {
                         "toolUseId": tool["toolUseId"],
-                        "content": [{"json": {"release_detail": release_details}}],
+                        "content": [{"json": {"release_detail": release_details_info}}],
                     }
 
                     tool_result_message = {
@@ -244,7 +251,7 @@ def guardrail_inspection(input_text, input_mode = 'OUTPUT'):
             ]
         )
 
-        logger.debug("Guardrail inspection result : {}".format(json.dumps(response)))
+        logger.info("Guardrail inspection result : {}".format(json.dumps(response)))
 
         if response["action"] in ["GUARDRAIL_INTERVENED"]:
             logger.info("Guardrail action : {}".format(response["action"]))
@@ -258,3 +265,10 @@ def guardrail_inspection(input_text, input_mode = 'OUTPUT'):
 
     else:
         return True, "Guardrail inspection skipped"
+    
+def clean_response(json_str):
+    # Remove any tags in the format <tag> or </tag>
+    cleaned_str = re.sub(r'<\/?[\w\s]+>', '', json_str)
+    last_brace_index = cleaned_str.rfind('}')
+    cleaned_str = cleaned_str[:last_brace_index + 1]
+    return json.loads(cleaned_str)
