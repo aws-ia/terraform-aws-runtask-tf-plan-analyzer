@@ -24,7 +24,6 @@ class GetECSAmisReleases:
             ami_data.append({"name": self.get_ami_name_from_id(ami_id), "id": ami_id})
 
         for ami in ami_data:
-            found_release = False
             for release in response_json:
                 details = markdown_to_json.dictify(release["body"])
                 for os_name in details.keys():
@@ -34,7 +33,6 @@ class GetECSAmisReleases:
                                 logger.info(
                                     f"Found release notes for {ami['id']}: {ami['name']}"
                                 )
-                                found_release = True
                                 releases_info.append(
                                     {
                                         "ami_id": ami["id"],
@@ -50,7 +48,6 @@ class GetECSAmisReleases:
                                     logger.info(
                                         f"Found release notes for {ami['id']}: {ami['name']}"
                                     )
-                                    found_release = True
                                     releases_info.append(
                                         {
                                             "ami_id": ami["id"],
@@ -63,10 +60,7 @@ class GetECSAmisReleases:
                                         }
                                     )
                                     break
-            if not found_release:
-                raise Exception(
-                    f"No release notes were found for {ami['id']}: {ami['name']}"
-                )
+
         return releases_info
 
     def get_ami_name_from_id(self, ami_id):
