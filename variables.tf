@@ -83,7 +83,7 @@ variable "recovery_window" {
 variable "lambda_reserved_concurrency" {
   description = "Maximum Lambda reserved concurrency, make sure your AWS quota is sufficient"
   type        = number
-  default     = 100
+  default     = 10
 }
 
 variable "lambda_default_timeout" {
