@@ -263,7 +263,7 @@ def guardrail_inspection(input_text, input_mode = 'OUTPUT'):
 
     else:
         return True, "Guardrail inspection skipped"
-    
+
 def clean_response(json_str):
     # Remove any tags in the format <tag> or </tag>
     cleaned_str = re.sub(r'<\/?[\w\s]+>', '', json_str)
