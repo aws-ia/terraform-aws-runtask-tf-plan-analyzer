@@ -127,6 +127,7 @@ resource "aws_cloudwatch_log_group" "runtask_callback" {
 
 ################# Run task Edge ##################
 resource "aws_lambda_function" "runtask_edge" {
+  provider                       = aws.cloudfront_waf # Lambda@Edge must be in us-east-1
   function_name                  = "${local.solution_prefix}-runtask-edge"
   description                    = "HCP Terraform run task - Lambda@Edge handler"
   role                           = aws_iam_role.runtask_edge.arn
