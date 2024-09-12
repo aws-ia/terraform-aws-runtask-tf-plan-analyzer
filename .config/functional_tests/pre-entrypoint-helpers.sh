@@ -13,6 +13,7 @@ cd ${PROJECT_PATH}
 
 #********** TFC Env Vars *************
 export AWS_DEFAULT_REGION=us-west-2
+export AWS_REGION=us-west-2
 export TFE_TOKEN=`aws secretsmanager get-secret-value --secret-id abp/hcp/token --region $AWS_DEFAULT_REGION | jq -r ".SecretString"`
 export TF_TOKEN_app_terraform_io=`aws secretsmanager get-secret-value --secret-id abp/hcp/token --region $AWS_DEFAULT_REGION | jq -r ".SecretString"`
 
