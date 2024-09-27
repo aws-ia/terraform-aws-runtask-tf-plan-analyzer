@@ -186,7 +186,7 @@ def eval(tf_plan_json):
         root = ET.fromstring(response["content"][0]["text"])
         result = root.find("result").text
         logger.info("Parsed : {}".format(result))
-    except Exception as e:        
+    except Exception as e:
         result = response["content"][0]["text"]
         logger.info("Non Parsed : {}".format(result))
 
