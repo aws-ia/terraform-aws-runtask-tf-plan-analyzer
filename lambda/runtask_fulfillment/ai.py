@@ -197,9 +197,10 @@ def eval(tf_plan_json):
     logger.info("##### Generating short summary #####")
     prompt = f"""
         List the resources that will be created, modified or deleted in the following terraform plan using the following rules:
-        - Provide a short summary with maximum of 700 characters of the infrastructure changes
+        - Provide summary of the infrastructure changes
         - Highlight major components of the changes such as what Terraform modules is executed
-        - Summarize what the Terraform modules does
+        - Summarize what each Terraform modules does
+        - Highlight any resources that being replaced or deleted
         - Highlight any outputs if available
 
         <terraform_plan>
@@ -226,7 +227,7 @@ def eval(tf_plan_json):
 
     guardrail_status, guardrail_response = guardrail_inspection(str(description))
     if guardrail_status:
-        results.append(generate_runtask_result(outcome_id="Plan-Summary", description="Summary of Terraform plan", result=description))
+        results.append(generate_runtask_result(outcome_id="Plan-Summary", description="Summary of Terraform plan", result=description[:9000])) # body max limit of 10,000 chars
     else:
         results.append(generate_runtask_result(outcome_id="Plan-Summary", description="Summary of Terraform plan", result="Output omitted due to : {}".format(guardrail_response)))
         description = "Bedrock guardrail triggered : {}".format(guardrail_response)
@@ -237,7 +238,7 @@ def eval(tf_plan_json):
     else:
         results.append(generate_runtask_result(outcome_id="AMI-Summary", description="Summary of AMI changes", result="Output omitted due to : {}".format(guardrail_response)))
 
-    runtask_high_level ="Run task Terraform plan analyzer using Amazon Bedrock, expand the findings below to learn more. Click `view more details` to get the detailed log"
+    runtask_high_level ="Terraform plan analyzer using Amazon Bedrock, expand the findings below to learn more. Click `view more details` to get the detailed logs"
     return runtask_high_level, results
 
 def guardrail_inspection(input_text, input_mode = 'OUTPUT'):
