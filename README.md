@@ -12,32 +12,32 @@ Enhance your HashiCorp Cloud Platform Terraform (Terraform Cloud) workflows with
 ### Key Features
 
 1. **AI-Powered Plan Summaries**
-   - Generate clear, natural language summaries of Terraform plan outputs
-   - Quickly understand the impact of infrastructure changes
+   * Generate clear, natural language summaries of Terraform plan outputs
+   * Quickly understand the impact of infrastructure changes
    ![Example](./images/example.png)
 
 2. **Extensible Analysis with Function Calling**
-   - Leverage AI to perform additional analyses, such as AMI evaluation
-   - Easily extend to other API-based tools and services
+   * Leverage AI to perform additional analyses, such as AMI evaluation
+   * Easily extend to other API-based tools and services
    ![Example2](./images/example2.png)
 
 3. **Responsible AI Integration**
-   - Implement Amazon Bedrock guardrails tailored to your organization's policies
-   - Ensure ethical and compliant AI usage in your infrastructure workflows
+   * Implement Amazon Bedrock guardrails tailored to your organization's policies
+   * Ensure ethical and compliant AI usage in your infrastructure workflows
    ![Example3](./images/example3.png)
 
 4. **Secure Architecture**
-   - Designed for deployment in a dedicated AWS account
-   - Optional AWS WAF integration for enhanced endpoint protection
-   - Adherence to AWS security best practices
+   * Designed for deployment in a dedicated AWS account
+   * Optional AWS WAF integration for enhanced endpoint protection
+   * Adherence to AWS security best practices
 
 5. **Seamless Terraform Cloud Integration**
-   - Operates as a native Run Task within your Terraform Cloud workflow
-   - Provides insights without disrupting existing processes
+   * Operates as a native Run Task within your Terraform Cloud workflow
+   * Provides insights without disrupting existing processes
 
 6. **Flexible and Customizable**
-   - Adapt the module to fit your specific organizational needs
-   - Easily configure and extend guardrails and analysis capabilities
+   * Adapt the module to fit your specific organizational needs
+   * Easily configure and extend guardrails and analysis capabilities
 
 ## Architecture
 
@@ -57,8 +57,8 @@ To implement this module, you'll need:
 
 For detailed setup instructions and best practices, please refer to the sections below:
 
-- [Usage](#usage)
-- [Best Practices](#best-practice)
+* [Usage](#usage)
+* [Best Practices](#best-practice)
 
 Enhance your Terraform workflows with AI-powered insights while maintaining security and responsible AI practices.
 
