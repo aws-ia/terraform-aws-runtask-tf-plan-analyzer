@@ -8,6 +8,7 @@ import botocore
 from runtask_utils import generate_runtask_result
 from tools.get_ami_releases import GetECSAmisReleases
 from utils import logger, stream_messages, tool_config
+import xml.etree.ElementTree as ET
 
 # Initialize model_id and region
 model_id = os.environ.get("BEDROCK_LLM_MODEL")
@@ -180,7 +181,14 @@ def eval(tf_plan_json):
         # Add response to message history
         messages.append(response)
 
-    result = response["content"][0]["text"]
+    # Try to parse output as XML and look for the <output> tag
+    try:
+        root = ET.fromstring(response["content"][0]["text"])
+        result = root.find("result").text
+        logger.info("Parsed : {}".format(result))
+    except Exception as e:
+        result = response["content"][0]["text"]
+        logger.info("Non Parsed : {}".format(result))
 
     #####################################################################
     ######### Third, generate short summary                     #########
@@ -188,7 +196,12 @@ def eval(tf_plan_json):
 
     logger.info("##### Generating short summary #####")
     prompt = f"""
-        Can you provide a short summary with maximum of 150 characters of the infrastructure changes?
+        List the resources that will be created, modified or deleted in the following terraform plan using the following rules:
+        - Provide summary of the infrastructure changes
+        - Highlight major components of the changes such as what Terraform modules is executed
+        - Summarize what each Terraform modules does
+        - Highlight any resources that being replaced or deleted
+        - Highlight any outputs if available
 
         <terraform_plan>
         {tf_plan_json["resource_changes"]}
@@ -214,7 +227,7 @@ def eval(tf_plan_json):
 
     guardrail_status, guardrail_response = guardrail_inspection(str(description))
     if guardrail_status:
-        results.append(generate_runtask_result(outcome_id="Plan-Summary", description="Summary of Terraform plan", result=description[:700]))
+        results.append(generate_runtask_result(outcome_id="Plan-Summary", description="Summary of Terraform plan", result=description[:9000])) # body max limit of 10,000 chars
     else:
         results.append(generate_runtask_result(outcome_id="Plan-Summary", description="Summary of Terraform plan", result="Output omitted due to : {}".format(guardrail_response)))
         description = "Bedrock guardrail triggered : {}".format(guardrail_response)
@@ -225,7 +238,8 @@ def eval(tf_plan_json):
     else:
         results.append(generate_runtask_result(outcome_id="AMI-Summary", description="Summary of AMI changes", result="Output omitted due to : {}".format(guardrail_response)))
 
-    return description, results
+    runtask_high_level ="Terraform plan analyzer using Amazon Bedrock, expand the findings below to learn more. Click `view more details` to get the detailed logs"
+    return runtask_high_level, results
 
 def guardrail_inspection(input_text, input_mode = 'OUTPUT'):
 
