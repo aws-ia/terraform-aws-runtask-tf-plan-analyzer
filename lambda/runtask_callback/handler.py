@@ -19,11 +19,13 @@ import json
 import logging
 import os
 import re
+import boto3
 from urllib.request import urlopen, Request
 from urllib.error import HTTPError, URLError
+from botocore.exceptions import ClientError
 
 HCP_TF_HOST_NAME = os.environ.get("HCP_TF_HOST_NAME", "app.terraform.io")
-GITHUB_API_TOKEN = os.environ.get("GITHUB_API_TOKEN", None)
+GITHUB_API_TOKEN_ARN = os.environ.get("GITHUB_API_TOKEN_ARN", None)
 
 logger = logging.getLogger()
 log_level = os.environ.get("log_level", logging.INFO)
@@ -95,6 +97,7 @@ def lambda_handler(event, _):
         logger.debug("HCP Terraform response: {}".format(response))
 
         try:
+            GITHUB_API_TOKEN = get_github_api_token(GITHUB_API_TOKEN_ARN)
             if event["payload"]["detail"]["vcs_pull_request_url"] and GITHUB_API_TOKEN:
                 comment_payload = extract_github_comment_payload(
                     attributes=event["payload"]["result"]["fulfillment"],
@@ -109,15 +112,15 @@ def lambda_handler(event, _):
                         payload=bytes(json.dumps(comment_payload), encoding="utf-8"),
                     )
                 else:
-                    logger.info("Invalid GitHub endpoint URL, skipping comment creation")
+                    logger.info(
+                        "Invalid GitHub endpoint URL, skipping comment creation"
+                    )
             else:
                 logger.info(
                     "No GitHub pull request URL found or GitHub API token provided, skipping comment creation"
                 )
         except Exception as e:
-            logger.error(
-                "Error while creating GitHub comment: {}".format(e)
-            )
+            logger.error("Error while creating GitHub comment: {}".format(e))
             pass
 
         return "completed"
@@ -158,6 +161,21 @@ def validate_endpoint(endpoint):  # validate that the endpoint hostname is valid
     return result
 
 
+def get_github_api_token(github_api_token_arn):
+    session = boto3.session.Session()
+    client = session.client(
+        service_name="secretsmanager",
+        region_name=os.environ.get("AWS_REGION", "us-east-1"),
+    )
+    try:
+        get_secret_value_response = client.get_secret_value(SecretId=github_api_token_arn)
+    except ClientError as e:
+        logging.exception("Exception: {}".format(e))
+        return None
+
+    return get_secret_value_response["SecretString"]
+
+
 def extract_github_endpoint(endpoint):
     pattern = r"https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/pull\/(\d+)"
     match = re.match(pattern, endpoint)
@@ -183,7 +201,7 @@ def extract_github_comment_payload(attributes):
     for result in attributes["results"]:
         comment_md += f"### {result['attributes']['description']}\n\n"
         comment_md += f"{result['attributes']['body'].replace('##', '####')}\n"
-    
+
     comment_payload = {
         "body": comment_md,
     }
