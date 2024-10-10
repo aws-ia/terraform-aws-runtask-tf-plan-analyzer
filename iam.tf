@@ -64,8 +64,8 @@ resource "aws_iam_role_policy_attachment" "runtask_callback" {
 
 resource "aws_iam_role_policy" "runtask_callback" {
   count = var.github_api_token_arn != null ? 1 : 0
-  name = "${local.solution_prefix}-runtask-callback-policy"
-  role = aws_iam_role.runtask_callback.id
+  name  = "${local.solution_prefix}-runtask-callback-policy"
+  role  = aws_iam_role.runtask_callback.id
   policy = templatefile("${path.module}/templates/role-policies/runtask-callback-lambda-role-policy.tpl", {
     github_api_token_arn = [var.github_api_token_arn]
   })
