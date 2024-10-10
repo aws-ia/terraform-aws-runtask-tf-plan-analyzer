@@ -152,3 +152,9 @@ variable "bedrock_llm_model" {
   type        = string
   default     = "anthropic.claude-3-sonnet-20240229-v1:0"
 }
+
+variable "github_api_token_arn" {
+  description = "The ARN of the secret containing the GitHub API token"
+  type        = string
+  default     = null
+}
