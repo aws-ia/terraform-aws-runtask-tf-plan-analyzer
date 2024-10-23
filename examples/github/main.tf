@@ -12,6 +12,7 @@ data "tfe_organization" "hcp_tf_org" {
 
 resource "aws_secretsmanager_secret" "github_api_token" {
   #checkov:skip=CKV2_AWS_57:run terraform apply to rotate api key
+  #checkov:skip=CKV_AWS_149:skipping KMS based encryption as it's just an example setup
   name = "tf_ai_github_api_token"
 }
 
