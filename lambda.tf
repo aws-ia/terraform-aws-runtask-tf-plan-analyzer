@@ -166,8 +166,8 @@ resource "aws_lambda_function" "runtask_fulfillment" {
     variables = {
       CW_LOG_GROUP_NAME         = local.cloudwatch_log_group_name
       BEDROCK_LLM_MODEL         = var.bedrock_llm_model
-      BEDROCK_GUARDRAIL_ID      = awscc_bedrock_guardrail.runtask_fulfillment.guardrail_id
-      BEDROCK_GUARDRAIL_VERSION = awscc_bedrock_guardrail_version.runtask_fulfillment.version
+      BEDROCK_GUARDRAIL_ID      = aws_bedrock_guardrail.runtask_fulfillment.guardrail_id
+      BEDROCK_GUARDRAIL_VERSION = aws_bedrock_guardrail_version.runtask_fulfillment.version
     }
   }
   tags = local.combined_tags
