@@ -190,6 +190,7 @@ resource "aws_cloudwatch_log_group" "runtask_waf" {
 
 resource "aws_cloudwatch_log_resource_policy" "runtask_waf" {
   count           = local.waf_deployment
+  provider        = aws.cloudfront_waf
   policy_document = data.aws_iam_policy_document.runtask_waf_log[count.index].json
   policy_name     = "aws-waf-logs-${local.solution_prefix}-runtask_waf_acl"
 }

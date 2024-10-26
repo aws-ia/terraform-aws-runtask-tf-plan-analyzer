@@ -3,12 +3,12 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.56.1"
+      version = ">= 5.72.1"
     }
 
     tfe = {
       source  = "hashicorp/tfe"
-      version = "~>0.38.0"
+      version = "~> 0.38.0"
     }
   }
 }
@@ -20,6 +20,10 @@ provider "aws" {
 provider "aws" {
   alias  = "cloudfront_waf"
   region = "us-east-1" # for Cloudfront WAF only, must be in us-east-1
+}
+
+provider "awscc" {
+  region = var.region
 }
 
 provider "tfe" {
