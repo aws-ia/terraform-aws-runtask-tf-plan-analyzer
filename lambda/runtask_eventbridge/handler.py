@@ -15,7 +15,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-"""HashiCorp HCP Terraform run task event handler implementation"""
+"""HCP Terraform run task event handler implementation"""
 
 import os
 import hmac
@@ -46,6 +46,7 @@ logger.setLevel(log_level)
 logger.info("Log level set to %s" % logger.getEffectiveLevel())
 
 event_bus_name = os.environ.get("EVENT_BUS_NAME", "default")
+event_rule_detail_type = os.environ.get("EVENT_RULE_DETAIL_TYPE", "tfplan-analyzer")
 event_bridge_client = boto3.client("events")
 
 ## Add user-agent to event-bridge event
@@ -80,7 +81,6 @@ def lambda_handler(event, _):
         )
         return {"statusCode": 500, "body": "Internal Server Error"}
 
-    detail_type = "hcp-tf-runtask"
     try:
         if hcp_tf_use_waf == "True" and not contains_valid_cloudfront_signature(
             event=event
@@ -92,7 +92,7 @@ def lambda_handler(event, _):
             print_error("401 Unauthorized - Invalid Payload Signature", headers)
             return {"statusCode": 401, "body": "Invalid Payload Signature"}
 
-        response = forward_event(json_payload, detail_type)
+        response = forward_event(json_payload, event_rule_detail_type)
 
         if response["FailedEntryCount"] > 0:
             print_error(
