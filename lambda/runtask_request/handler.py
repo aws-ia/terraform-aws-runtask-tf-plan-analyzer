@@ -22,6 +22,7 @@ import os
 HCP_TF_ORG = os.environ.get("HCP_TF_ORG", False)
 WORKSPACE_PREFIX = os.environ.get("WORKSPACE_PREFIX", False)
 RUNTASK_STAGES = os.environ.get("RUNTASK_STAGES", False)
+EVENT_RULE_DETAIL_TYPE = os.environ.get("EVENT_RULE_DETAIL_TYPE", "tfplan-analyzer") # assume there could be multiple deployment of this module, this will ensure each rule are unique
 
 logger = logging.getLogger()
 log_level = os.environ.get("log_level", logging.INFO)
@@ -34,7 +35,7 @@ def lambda_handler(event, _):
     logger.debug(json.dumps(event))
     try:
         VERIFY = True
-        if event["payload"]["detail-type"] == "hcp-tf-runtask":
+        if event["payload"]["detail-type"] == EVENT_RULE_DETAIL_TYPE:
             if (
                 HCP_TF_ORG
                 and event["payload"]["detail"]["organization_name"] != HCP_TF_ORG

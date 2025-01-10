@@ -11,7 +11,7 @@ resource "aws_kms_key" "runtask_key" {
 
 # Assign an alias to the key
 resource "aws_kms_alias" "runtask_key" {
-  name          = "alias/runTask"
+  name          = "alias/${local.solution_prefix}-runTask"
   target_key_id = aws_kms_key.runtask_key.key_id
 }
 
@@ -28,6 +28,6 @@ resource "aws_kms_key" "runtask_waf" {
 resource "aws_kms_alias" "runtask_waf" {
   count         = local.waf_deployment
   provider      = aws.cloudfront_waf
-  name          = "alias/runtask-WAF"
+  name          = "alias/${local.solution_prefix}-runtask-WAF"
   target_key_id = aws_kms_key.runtask_waf[count.index].key_id
 }

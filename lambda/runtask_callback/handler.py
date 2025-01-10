@@ -35,7 +35,7 @@ def lambda_handler(event, _):
     logger.debug(json.dumps(event))
     try:
         # trim empty url from the payload
-        if event["payload"]["result"]["fulfillment"]["url"] == False:
+        if "fulfillment" in event["payload"]["result"] and event["payload"]["result"]["fulfillment"]["url"] == False:
             event["payload"]["result"]["fulfillment"].pop("url")
 
         if (

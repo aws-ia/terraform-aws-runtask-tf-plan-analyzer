@@ -19,8 +19,8 @@ module "runtask_cloudfront" {
 
   create_origin_access_control = true
   origin_access_control = {
-    lambda_oac = {
-      description      = "CloudFront OAC to Lambda"
+    lambda_oac_plan_analyzer = {
+      description      = "CloudFront OAC to Lambda AWS-IA plan analyzer"
       origin_type      = "lambda"
       signing_behavior = "always"
       signing_protocol = "sigv4"
@@ -36,7 +36,7 @@ module "runtask_cloudfront" {
         origin_protocol_policy = "https-only"
         origin_ssl_protocols   = ["TLSv1.2"]
       }
-      origin_access_control = "lambda_oac"
+      origin_access_control = "lambda_oac_plan_analyzer"
       custom_header         = var.deploy_waf ? [local.cloudfront_custom_header] : null
     }
   }

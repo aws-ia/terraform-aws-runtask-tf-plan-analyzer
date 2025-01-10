@@ -26,6 +26,7 @@ resource "aws_lambda_function" "runtask_eventbridge" {
       HCP_TF_CF_SECRET_ARN   = var.deploy_waf ? aws_secretsmanager_secret.runtask_cloudfront[0].arn : null
       HCP_TF_CF_SIGNATURE    = var.deploy_waf ? local.cloudfront_sig_name : null
       EVENT_BUS_NAME         = var.event_bus_name
+      EVENT_RULE_DETAIL_TYPE = local.solution_prefix # ensure uniqueness of event sent to each runtask state machine
     }
   }
   tracing_config {
@@ -42,7 +43,6 @@ resource "aws_lambda_function" "runtask_eventbridge" {
 resource "aws_lambda_function_url" "runtask_eventbridge" {
   function_name      = aws_lambda_function.runtask_eventbridge.function_name
   authorization_type = "AWS_IAM"
-  #checkov:skip=CKV_AWS_258:auth set to none, validation hmac inside the lambda code
 }
 
 resource "aws_lambda_permission" "runtask_eventbridge" {
@@ -78,9 +78,10 @@ resource "aws_lambda_function" "runtask_request" {
   }
   environment {
     variables = {
-      HCP_TF_ORG       = var.hcp_tf_org
-      RUNTASK_STAGES   = join(",", var.runtask_stages)
-      WORKSPACE_PREFIX = length(var.workspace_prefix) > 0 ? var.workspace_prefix : null
+      HCP_TF_ORG             = var.hcp_tf_org
+      RUNTASK_STAGES         = join(",", var.runtask_stages)
+      WORKSPACE_PREFIX       = length(var.workspace_prefix) > 0 ? var.workspace_prefix : null
+      EVENT_RULE_DETAIL_TYPE = local.solution_prefix # ensure uniqueness of event sent to each runtask state machine
     }
   }
   tags = local.combined_tags
