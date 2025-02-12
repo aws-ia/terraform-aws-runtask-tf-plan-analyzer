@@ -7,8 +7,8 @@ Follow the steps below to deploy the module and attach it to your HCP Terraform 
 
 * The GitHub token needs to be a [fine-grained personal access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token) with the following permissions:
 
-  - Read access to metadata
-  - Read and Write access to pull requests
+* Read access to metadata
+* Read and Write access to pull requests
 
 * Deploy the module
 
