@@ -39,14 +39,14 @@ Follow the steps below to deploy the module and attach it to your HCP Terraform 
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.7 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.72.1 |
-| <a name="requirement_tfe"></a> [tfe](#requirement\_tfe) | ~> 0.38.0 |
+| <a name="requirement_tfe"></a> [tfe](#requirement\_tfe) | >= 0.38.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.72.1 |
-| <a name="provider_tfe"></a> [tfe](#provider\_tfe) | ~> 0.38.0 |
+| <a name="provider_tfe"></a> [tfe](#provider\_tfe) | >= 0.38.0 |
 
 ## Modules
 
