@@ -107,8 +107,8 @@ variable "lambda_python_runtime" {
   type        = string
   default     = "python3.11"
   validation {
-    condition     = contains(["python3.11", "python3.10", "python3.9"], var.lambda_python_runtime)
-    error_message = "Valid values for var: lambda_python_runtime are python3.11, python3.10, python3.9"
+    condition     = contains(["python3.13","python3.12","python3.11", "python3.10", "python3.9"], var.lambda_python_runtime)
+    error_message = "Valid values for var: lambda_python_runtime are python3.13, python3.12, python3.11, python3.10, python3.9"
   }
 }
 
