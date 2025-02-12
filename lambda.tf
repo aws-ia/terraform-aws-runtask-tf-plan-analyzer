@@ -113,10 +113,16 @@ resource "aws_lambda_function" "runtask_callback" {
   tracing_config {
     mode = "Active"
   }
+  environment {
+    variables = {
+      GITHUB_API_TOKEN_ARN = var.github_api_token_arn
+    }
+  }
   tags = local.combined_tags
   #checkov:skip=CKV_AWS_116:not using DLQ
   #checkov:skip=CKV_AWS_117:VPC is not required
   #checkov:skip=CKV_AWS_272:skip code-signing
+  #checkov:skip=CKV_AWS_173:no sensitive data in env var
 }
 
 resource "aws_cloudwatch_log_group" "runtask_callback" {
