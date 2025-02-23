@@ -13,8 +13,9 @@ resource "aws_cloudwatch_event_rule" "runtask_rule" {
   description    = "Rule to capture HCP Terraform run task events"
   event_bus_name = var.event_bus_name
   event_pattern = templatefile("${path.module}/templates/runtask_rule.tpl", {
-    var_event_source   = var.event_source
-    var_runtask_stages = jsonencode(var.runtask_stages)
+    var_event_source           = var.event_source
+    var_runtask_stages         = jsonencode(var.runtask_stages)
+    var_event_rule_detail_type = local.solution_prefix
   })
   tags = local.combined_tags
 }
