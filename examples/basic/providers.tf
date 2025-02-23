@@ -22,10 +22,6 @@ provider "aws" {
   region = "us-east-1" # for Cloudfront WAF only, must be in us-east-1
 }
 
-provider "awscc" {
-  region = var.region
-}
-
 provider "tfe" {
   token = var.hcp_tf_token
 }
