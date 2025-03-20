@@ -1,10 +1,12 @@
+import os
 import requests
 import boto3
 import markdown_to_json
 from utils import logger
 
+aws_region = os.environ.get("AMI_RELEASES_REGION",'us-east-1')
 session = boto3.Session()
-ec2_client = session.client(service_name="ec2")
+ec2_client = session.client(service_name="ec2",region_name=aws_region)
 
 class GetECSAmisReleases:
     def execute(self, ami_ids):

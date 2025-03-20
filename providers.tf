@@ -22,3 +22,7 @@ provider "aws" {
   region = "us-east-1"
   alias  = "cloudfront_waf"
 }
+
+provider "awscc" {
+  region = var.aws_region
+}
