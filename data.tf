@@ -115,17 +115,17 @@ data "aws_iam_policy_document" "runtask_key" {
     principals {
       type = "Service"
       identifiers = [
-        "logs.${data.aws_region.current_region.name}.amazonaws.com"
+        "logs.${data.aws_region.current_region.region}.amazonaws.com"
       ]
     }
     condition {
       test     = "ArnEquals"
       variable = "kms:EncryptionContext:aws:logs:arn"
       values = [
-        "arn:${data.aws_partition.current_partition.id}:logs:${data.aws_region.current_region.name}:${data.aws_caller_identity.current_account.account_id}:log-group:/aws/lambda/${local.solution_prefix}*",
-        "arn:${data.aws_partition.current_partition.id}:logs:${data.aws_region.current_region.name}:${data.aws_caller_identity.current_account.account_id}:log-group:/aws/state/${local.solution_prefix}*",
-        "arn:${data.aws_partition.current_partition.id}:logs:${data.aws_region.current_region.name}:${data.aws_caller_identity.current_account.account_id}:log-group:/aws/vendedlogs/states/${local.solution_prefix}*",
-        "arn:${data.aws_partition.current_partition.id}:logs:${data.aws_region.current_region.name}:${data.aws_caller_identity.current_account.account_id}:log-group:${var.cloudwatch_log_group_name}*"
+        "arn:${data.aws_partition.current_partition.id}:logs:${data.aws_region.current_region.region}:${data.aws_caller_identity.current_account.account_id}:log-group:/aws/lambda/${local.solution_prefix}*",
+        "arn:${data.aws_partition.current_partition.id}:logs:${data.aws_region.current_region.region}:${data.aws_caller_identity.current_account.account_id}:log-group:/aws/state/${local.solution_prefix}*",
+        "arn:${data.aws_partition.current_partition.id}:logs:${data.aws_region.current_region.region}:${data.aws_caller_identity.current_account.account_id}:log-group:/aws/vendedlogs/states/${local.solution_prefix}*",
+        "arn:${data.aws_partition.current_partition.id}:logs:${data.aws_region.current_region.region}:${data.aws_caller_identity.current_account.account_id}:log-group:${var.cloudwatch_log_group_name}*"
       ]
     }
   }
@@ -152,7 +152,7 @@ data "aws_iam_policy_document" "runtask_key" {
       test     = "StringEquals"
       variable = "kms:ViaService"
       values = [
-        "secretsmanager.${data.aws_region.current_region.name}.amazonaws.com"
+        "secretsmanager.${data.aws_region.current_region.region}.amazonaws.com"
       ]
     }
 
