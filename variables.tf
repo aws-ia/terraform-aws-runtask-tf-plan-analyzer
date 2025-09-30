@@ -89,7 +89,7 @@ variable "lambda_reserved_concurrency" {
 variable "lambda_default_timeout" {
   description = "Lambda default timeout in seconds"
   type        = number
-  default     = 120
+  default     = 300
 }
 
 variable "lambda_architecture" {
@@ -148,7 +148,7 @@ variable "waf_managed_rule_set" {
 }
 
 variable "bedrock_llm_model" {
-  description = "Bedrock LLM model to use"
+  description = "Bedrock LLM model to use (supports cross-region inference profiles)"
   type        = string
-  default     = "anthropic.claude-3-sonnet-20240229-v1:0"
+  default     = "global.anthropic.claude-sonnet-4-20250514-v1:0"
 }
