@@ -77,38 +77,11 @@ def eval(tf_plan_json):
     ######## Secondly, evaluate AMIs per analysis                ########
     #####################################################################
     logger.info("##### Evaluating AMI information #####")
-    prompt = """
-        Find additional details of infrastructure changes using the following rules
-        1. For Amazon machine image (AMI or image_id) modifications, compare the old AMI information against the new AMI, including linux kernel, docker and ecs agent using the get_ami_releases function.
-        2. Think step by step using "thinking" tags field
-        3. Use the following schema. Skip the preamble:
-        <output>
-        <thinking>
-        </thinking>
-        <result>
-            ## Current AMI ID
-                * AMI name:
-                * OS Architecture:
-                * OS Name:
-                * kernel:
-                * docker version:
-                * ECS agent:
+    prompt = f"""
+    For any Amazon Machine Image (AMI) changes in this analysis, use the get_ami_releases function to compare old and new AMI details including kernel, docker, and ECS agent versions.
 
-            ## New AMI ID
-                * AMI name:
-                * kernel:
-                * OS Architecture:
-                * OS Name:
-                * docker version:
-                * ECS agent:
-        </result>
-        <output>
-        Now, given the following analysis, compare any old with new AMIs:
-        """
-
-    prompt += f"""
-        <analysis>{analysis_response_text}</analysis>
-        """
+    Analysis: {analysis_response_text}
+    """
 
     messages = [{"role": "user", "content": [{"text": prompt}]}]
 
@@ -116,7 +89,7 @@ def eval(tf_plan_json):
         bedrock_client=bedrock_client,
         model_id=model_id,
         messages=messages,
-        system_text=system_text,
+        system_text="Provide direct, technical analysis of AMI changes without conversational language.",
         tool_config=tool_config,
     )
 
@@ -153,22 +126,20 @@ def eval(tf_plan_json):
             bedrock_client=bedrock_client,
             model_id=model_id,
             messages=messages,
-            system_text=system_text,
+            system_text="Provide direct, technical analysis of AMI changes without conversational language.",
             tool_config=tool_config,
-            stop_sequences=["</result>"],
         )
 
         # Add response to message history
         messages.append(response)
 
-    # Try to parse output as XML and look for the <output> tag
-    try:
-        root = ET.fromstring(response["content"][0]["text"])
-        result = root.find("result").text
-        logger.info("Parsed : {}".format(result))
-    except Exception as e:
+    # Extract the actual response text from Bedrock
+    if response and "content" in response and len(response["content"]) > 0:
         result = response["content"][0]["text"]
-        logger.info("Non Parsed : {}".format(result))
+        logger.debug("AMI analysis response: {}".format(result))
+    else:
+        result = "Error: No AMI analysis response received from Bedrock"
+        logger.error("No AMI analysis content received from Bedrock")
 
     #####################################################################
     ######### Third, generate short summary                     #########
