@@ -34,40 +34,16 @@ def eval(tf_plan_json):
 
     logger.info("##### Evaluating Terraform plan output #####")
     prompt = """
-    List the resources that will be created, modified or deleted in the following terraform plan using the following rules:
-    1. Think step by step using the "thinking" json field
-    2. For AMI changes, include the old and new AMI ID
-    3. Use the following schema. Skip the preamble:
-    <schema>
-    {
-        "$id": "https://example.com/arrays.schema.json",
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-            "thinking": {
-                "type": "string",
-                "description": "Think step by step"
-            },
-            "resources": {
-                "type": "string",
-                "description": "A list of resources that will be created, modified or deleted"
-            }
-        }
-    }
-    </schema>
-    Here is an example of the output:
-        <example>
-        {
-        "thinking": "To list the resources that will be created, modified or deleted, I will go through the terraform plan and look for the 'actions' field in each resource change. If the actions include 'create', 'update', or 'delete', I will add that resource to the list. For AMI changes, I will include the old and new AMI ID.",
-        "resources": "The following resources will be modified: RESOURCES"
-        }
-        </example>
-    Now, list the resources that will be created, modified or deleted in the following terraform plan"""
+    You must respond with ONLY a JSON object. Do not include any explanatory text, conversation, or markdown formatting.
+
+    Analyze the terraform plan and return this exact JSON structure:
+    {"thinking": "brief analysis", "resources": "list of resources being created, modified, or deleted", "impact_analysis": "assessment formatted as markdown with sections: ## 🔍 Impact Analysis\n\n### 🚨 Security Concerns\n- **Critical/High/Medium**: Description\n- **Risk Level**: Assessment\n\n### ⚠️ Configuration Issues\n- **Issue Type**: Description\n- **Impact**: Consequence\n\n### 📊 Operational Impact\n- **Infrastructure**: What's being deployed\n- **Cost**: Cost implications\n\n### 💡 Recommendations\n- **Priority 1**: Most critical fix\n- **Priority 2**: Secondary concerns\n- **Warning**: Important warnings"}
+
+    Terraform plan:
+    """
 
     prompt += f"""
-    <terraform_plan>
     {tf_plan_json["resource_changes"]}
-    </terraform_plan>
     """
 
     messages = [
@@ -89,7 +65,14 @@ def eval(tf_plan_json):
 
     logger.debug("Analysis response: {}".format(analysis_response))
 
-    analysis_response_text= clean_response(analysis_response["content"][0]["text"])["resources"]
+    try:
+        parsed_response = clean_response(analysis_response["content"][0]["text"])
+        analysis_response_text = parsed_response["resources"]
+        impact_analysis_text = parsed_response.get("impact_analysis", "No impact analysis available")
+    except Exception as e:
+        logger.error(f"Error parsing analysis response: {e}")
+        analysis_response_text = "Error: Could not parse Terraform plan analysis"
+        impact_analysis_text = "Error: Could not parse impact analysis"
 
     logger.debug("Analysis response Text: {}".format(analysis_response_text))
 
@@ -97,38 +80,11 @@ def eval(tf_plan_json):
     ######## Secondly, evaluate AMIs per analysis                ########
     #####################################################################
     logger.info("##### Evaluating AMI information #####")
-    prompt = """
-        Find additional details of infrastructure changes using the following rules
-        1. For Amazon machine image (AMI or image_id) modifications, compare the old AMI information against the new AMI, including linux kernel, docker and ecs agent using the get_ami_releases function.
-        2. Think step by step using "thinking" tags field
-        3. Use the following schema. Skip the preamble:
-        <output>
-        <thinking>
-        </thinking>
-        <result>
-            ## Current AMI ID
-                * AMI name:
-                * OS Architecture:
-                * OS Name:
-                * kernel:
-                * docker version:
-                * ECS agent:
+    prompt = f"""
+    For any Amazon Machine Image (AMI) changes in this analysis, use the get_ami_releases function to compare old and new AMI details including kernel, docker, and ECS agent versions.
 
-            ## New AMI ID
-                * AMI name:
-                * kernel:
-                * OS Architecture:
-                * OS Name:
-                * docker version:
-                * ECS agent:
-        </result>
-        <output>
-        Now, given the following analysis, compare any old with new AMIs:
-        """
-
-    prompt += f"""
-        <analysis>{analysis_response_text}</analysis>
-        """
+    Analysis: {analysis_response_text}
+    """
 
     messages = [{"role": "user", "content": [{"text": prompt}]}]
 
@@ -136,7 +92,7 @@ def eval(tf_plan_json):
         bedrock_client=bedrock_client,
         model_id=model_id,
         messages=messages,
-        system_text=system_text,
+        system_text="Provide direct, technical analysis of AMI changes without conversational language.",
         tool_config=tool_config,
     )
 
@@ -173,22 +129,20 @@ def eval(tf_plan_json):
             bedrock_client=bedrock_client,
             model_id=model_id,
             messages=messages,
-            system_text=system_text,
+            system_text="Provide direct, technical analysis of AMI changes without conversational language.",
             tool_config=tool_config,
-            stop_sequences=["</result>"],
         )
 
         # Add response to message history
         messages.append(response)
 
-    # Try to parse output as XML and look for the <output> tag
-    try:
-        root = ET.fromstring(response["content"][0]["text"])
-        result = root.find("result").text
-        logger.info("Parsed : {}".format(result))
-    except Exception as e:
+    # Extract the actual response text from Bedrock
+    if response and "content" in response and len(response["content"]) > 0:
         result = response["content"][0]["text"]
-        logger.info("Non Parsed : {}".format(result))
+        logger.debug("AMI analysis response: {}".format(result))
+    else:
+        result = "Error: No AMI analysis response received from Bedrock"
+        logger.error("No AMI analysis content received from Bedrock")
 
     #####################################################################
     ######### Third, generate short summary                     #########
@@ -196,30 +150,30 @@ def eval(tf_plan_json):
 
     logger.info("##### Generating short summary #####")
     prompt = f"""
-        List the resources that will be created, modified or deleted in the following terraform plan using the following rules:
-        - Provide summary of the infrastructure changes
-        - Highlight major components of the changes such as what Terraform modules is executed
-        - Summarize what each Terraform modules does
-        - Highlight any resources that being replaced or deleted
-        - Highlight any outputs if available
+    Provide a concise summary of these Terraform changes. Focus on what resources are being created, modified, or deleted:
 
-        <terraform_plan>
-        {tf_plan_json["resource_changes"]}
-        </terraform_plan>
-        """
+    {tf_plan_json["resource_changes"]}
+    """
     message_desc = [{"role": "user", "content": [{"text": prompt}]}]
     stop_reason, response = stream_messages(
         bedrock_client=bedrock_client,
         model_id=model_id,
         messages=message_desc,
-        system_text=system_text,
-        tool_config=tool_config,
-        stop_sequences=["</result>"],
+        system_text="Provide a direct, technical summary without conversational language.",
+        tool_config=None,
     )
-    description = response["content"][0]["text"]
+
+    # Extract the actual response text from Bedrock
+    if response and "content" in response and len(response["content"]) > 0:
+        description = response["content"][0]["text"]
+        logger.debug("Full Bedrock response: {}".format(description))
+    else:
+        description = "Error: No response received from Bedrock"
+        logger.error("No response content received from Bedrock")
 
     logger.info("##### Report #####")
     logger.info("Analysis : {}".format(analysis_response_text))
+    logger.info("Impact Analysis: {}".format(impact_analysis_text))
     logger.info("AMI summary: {}".format(result))
     logger.info("Terraform plan summary: {}".format(description))
 
@@ -231,6 +185,12 @@ def eval(tf_plan_json):
     else:
         results.append(generate_runtask_result(outcome_id="Plan-Summary", description="Summary of Terraform plan", result="Output omitted due to : {}".format(guardrail_response)))
         description = "Bedrock guardrail triggered : {}".format(guardrail_response)
+
+    guardrail_status, guardrail_response = guardrail_inspection(str(impact_analysis_text))
+    if guardrail_status:
+        results.append(generate_runtask_result(outcome_id="Impact-Analysis", description="Security and operational impact assessment", result=impact_analysis_text[:9000]))
+    else:
+        results.append(generate_runtask_result(outcome_id="Impact-Analysis", description="Security and operational impact assessment", result="Output omitted due to : {}".format(guardrail_response)))
 
     guardrail_status, guardrail_response = guardrail_inspection(str(result))
     if guardrail_status:
@@ -279,8 +239,28 @@ def guardrail_inspection(input_text, input_mode = 'OUTPUT'):
         return True, "Guardrail inspection skipped"
 
 def clean_response(json_str):
-    # Remove any tags in the format <tag> or </tag>
-    cleaned_str = re.sub(r'<\/?[\w\s]+>', '', json_str)
-    last_brace_index = cleaned_str.rfind('}')
-    cleaned_str = cleaned_str[:last_brace_index + 1]
-    return json.loads(cleaned_str)
+    try:
+        # First try to parse as-is
+        return json.loads(json_str)
+    except json.JSONDecodeError:
+        try:
+            # Remove any tags in the format <tag> or </tag>
+            cleaned_str = re.sub(r'<\/?[\w\s]+>', '', json_str)
+
+            # Find JSON content between braces
+            start_brace = cleaned_str.find('{')
+            last_brace = cleaned_str.rfind('}')
+
+            if start_brace != -1 and last_brace != -1 and last_brace > start_brace:
+                json_content = cleaned_str[start_brace:last_brace + 1]
+                return json.loads(json_content)
+            else:
+                logger.error(f"No valid JSON braces found in response: {json_str}")
+                return {"resources": "Error: No valid JSON structure found"}
+
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON decode error after cleaning: {e}, Original string: {json_str}")
+            return {"resources": "Error: Could not parse response as JSON"}
+    except Exception as e:
+        logger.error(f"Unexpected error in clean_response: {e}, Original string: {json_str}")
+        return {"resources": "Error: Unexpected parsing error"}
