@@ -3,7 +3,7 @@
 
 ## Overview
 
-Enhance your HashiCorp Cloud Platform Terraform (previosly known as Terraform Cloud) workflows with AI-powered analysis using Amazon Bedrock. This module integrates seamlessly as a Run Task to provide:
+Enhance your HashiCorp Cloud Platform Terraform (Terraform Cloud) workflows with AI-powered analysis using Amazon Bedrock. This module integrates seamlessly as a Run Task to provide:
 
 * Intelligent Terraform plan analysis with concise, human-friendly summaries
 * Advanced function calling capabilities for extended analysis (e.g., AMI evaluation)
@@ -21,28 +21,21 @@ Enhance your HashiCorp Cloud Platform Terraform (previosly known as Terraform Cl
    * Easily extend to other API-based tools and services
    ![Example2](./images/example2.png)
 
-3. **Comprehensive Impact Analysis**
-   * Security concerns assessment with risk levels (Critical/High/Medium)
-   * Configuration issues identification and impact evaluation
-   * Operational impact analysis including infrastructure and cost implications
-   * Prioritized recommendations for addressing identified issues
-   ![Example4](./images/example4.png)
-
-4. **Responsible AI Integration**
+3. **Responsible AI Integration**
    * Implement Amazon Bedrock guardrails tailored to your organization's policies
    * Ensure ethical and compliant AI usage in your infrastructure workflows
    ![Example3](./images/example3.png)
 
-5. **Secure Architecture**
+4. **Secure Architecture**
    * Designed for deployment in a dedicated AWS account
    * Optional AWS WAF integration for enhanced endpoint protection
    * Adherence to AWS security best practices
 
-6. **Seamless Terraform Cloud Integration**
+5. **Seamless Terraform Cloud Integration**
    * Operates as a native Run Task within your Terraform Cloud workflow
    * Provides insights without disrupting existing processes
 
-7. **Flexible and Customizable**
+6. **Flexible and Customizable**
    * Adapt the module to fit your specific organizational needs
    * Easily configure and extend guardrails and analysis capabilities
 
@@ -57,7 +50,7 @@ This module leverages a hub-spoke model, designed for deployment in a dedicated 
 To implement this module, you'll need:
 
 1. An AWS account with appropriate credentials
-2. Access to Amazon Bedrock (default model: Claude 4 Sonnet)
+2. Access to Amazon Bedrock (default model: Claude 3 Sonnet)
 3. A HashiCorp Cloud Platform (HCP) Terraform account
 
 ## Getting Started
@@ -65,7 +58,7 @@ To implement this module, you'll need:
 For detailed setup instructions and best practices, please refer to the sections below:
 
 * [Usage](#usage)
-* [Best Practices](#best-practices)
+* [Best Practices](#best-practice)
 
 Enhance your Terraform workflows with AI-powered insights while maintaining security and responsible AI practices.
 
@@ -77,11 +70,7 @@ Enhance your Terraform workflows with AI-powered insights while maintaining secu
   make all
   ```
 
-* Enable Bedrock model access for `Claude 4 Sonnet`. Refer to [this guide for more info](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html).
-
-  > **Model access page retiring soon**
-  >
-  > Amazon Bedrock will simplify access to all serverless foundation models, and any new models, by automatically enabling them for every AWS account in commercial AWS regions, eliminating the need to manually activate access through the Bedrock console. Account administrators retain full control over model access through IAM policies and Service Control Policies (SCPs) to restrict model access as needed.
+* Enable Bedrock model access for `Claude 3 Sonnet`. Refer to [this guide for more info](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html).
 
 * Reference the `examples/basic` folder on how to use this module
 
@@ -92,7 +81,7 @@ Enhance your Terraform workflows with AI-powered insights while maintaining secu
     terraform apply
     ```
 
-## Best practices
+## Best practice
 
 * **Do not** re-use the Run Tasks URL across different trust-boundary (organizations, accounts, team). We recommend you to deploy separate Run Task deployment per trust-boundary.
 
