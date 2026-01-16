@@ -93,6 +93,10 @@ Enhance your Terraform workflows with AI-powered insights while maintaining secu
 
 * We recommend to add additional topic to the Bedrock Guardrail to fit your organization requirements.
 
+## Data Collection
+
+This solution sends operational metrics to AWS (the “Data”) about the use of this solution. We use this Data to better understand how customers use this solution and related services and products. AWS’s collection of this Data is subject to the [AWS Privacy Notice](https://aws.amazon.com/privacy/).
+
 ## Requirements
 
 | Name | Version |
