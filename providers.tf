@@ -15,6 +15,12 @@ terraform {
       version = "~>2.2.0"
     }
   }
+
+  provider_meta "aws" {
+    user_agent = [
+      "AWS/1.0 aws-ia/runtask-tf-plan-analyzer:1.0.0",
+    ]
+  }
 }
 
 # for Cloudfront WAF only - must be in us-east-1
