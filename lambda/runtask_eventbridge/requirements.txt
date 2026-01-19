@@ -1,1 +1,1 @@
-aws-secretsmanager-caching
+aws-secretsmanager-caching==1.1.3
