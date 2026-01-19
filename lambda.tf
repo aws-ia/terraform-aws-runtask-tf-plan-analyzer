@@ -54,6 +54,16 @@ resource "aws_lambda_permission" "runtask_eventbridge" {
   source_arn    = module.runtask_cloudfront[count.index].cloudfront_distribution_arn
 }
 
+# New permission required: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-lambda.html
+resource "aws_lambda_permission" "runtask_eventbridge_add_perm" {
+  count         = local.waf_deployment
+  statement_id  = "AllowCloudFrontToFunctionUrl2"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.runtask_eventbridge.function_name
+  principal     = "cloudfront.amazonaws.com"
+  source_arn    = module.runtask_cloudfront[count.index].cloudfront_distribution_arn
+}
+
 resource "aws_cloudwatch_log_group" "runtask_eventbridge" {
   name              = "/aws/lambda/${aws_lambda_function.runtask_eventbridge.function_name}"
   retention_in_days = var.cloudwatch_log_group_retention
