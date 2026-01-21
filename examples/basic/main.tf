@@ -12,7 +12,7 @@ data "tfe_organization" "hcp_tf_org" {
 
 module "hcp_tf_run_task" {
   source             = "../.."
-  aws_region         = data.aws_region.current.name
+  aws_region         = data.aws_region.current.region
   hcp_tf_org         = data.tfe_organization.hcp_tf_org.name
   run_task_iam_roles = var.tf_run_task_logic_iam_roles
   deploy_waf         = true
