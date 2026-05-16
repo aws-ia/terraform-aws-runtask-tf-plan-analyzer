@@ -30,7 +30,7 @@ variable "workspace_prefix" {
 variable "run_task_iam_roles" {
   description = "List of IAM roles to be attached to the Lambda function"
   type        = list(string)
-  default     = null
+  default     = []
 }
 
 variable "event_source" {
@@ -105,10 +105,10 @@ variable "lambda_architecture" {
 variable "lambda_python_runtime" {
   description = "Lambda Python runtime"
   type        = string
-  default     = "python3.11"
+  default     = "python3.13"
   validation {
-    condition     = contains(["python3.13", "python3.12", "python3.11", "python3.10", "python3.9"], var.lambda_python_runtime)
-    error_message = "Valid values for var: lambda_python_runtime are python3.13, python3.12, python3.11, python3.10, python3.9"
+    condition     = contains(["python3.13", "python3.12", "python3.11"], var.lambda_python_runtime)
+    error_message = "Valid values for var: lambda_python_runtime are python3.13, python3.12, python3.11"
   }
 }
 
