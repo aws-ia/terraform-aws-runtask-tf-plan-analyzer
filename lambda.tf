@@ -142,7 +142,7 @@ resource "aws_lambda_function" "runtask_edge" {
   function_name                  = "${local.solution_prefix}-runtask-edge"
   description                    = "HCP Terraform run task - Lambda@Edge handler"
   role                           = aws_iam_role.runtask_edge.arn
-  architectures                  = local.lambda_architecture
+  architectures                  = ["x86_64"] # Lambda@Edge only supports x86_64
   source_code_hash               = data.archive_file.runtask_edge.output_base64sha256
   filename                       = data.archive_file.runtask_edge.output_path
   handler                        = "handler.lambda_handler"

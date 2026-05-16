@@ -30,7 +30,7 @@ variable "workspace_prefix" {
 variable "run_task_iam_roles" {
   description = "List of IAM roles to be attached to the Lambda function"
   type        = list(string)
-  default     = null
+  default     = []
 }
 
 variable "event_source" {

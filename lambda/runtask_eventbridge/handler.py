@@ -27,7 +27,12 @@ import urllib.parse
 import boto3
 import botocore.session
 
-from cgi import parse_header
+def parse_header(content_type):
+    """Replacement for cgi.parse_header, removed in Python 3.13."""
+    from email.message import Message
+    m = Message()
+    m['Content-Type'] = content_type
+    return m.get_content_type(), dict(m.get_params(failobj=[])[1:])
 from aws_secretsmanager_caching import SecretCache, SecretCacheConfig
 
 client = botocore.session.get_session().create_client("secretsmanager")
